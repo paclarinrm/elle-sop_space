@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SOP Space Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0a0a0a;
+  --black2:#141414;
+  --black3:#1c1c1c;
+  --black4:#252525;
+  --pink:#e0527a;
+  --pink-dark:#b83560;
+  --pink-light:rgba(224,82,122,.12);
+  --pink-border:rgba(224,82,122,.25);
+  --white:#ffffff;
+  --grey1:#f7f7f7;
+  --grey2:#efefef;
+  --grey3:#d0d0d0;
+  --grey4:#9a9a9a;
+  --grey5:#555;
+  --text:#0a0a0a;
+  --text-inv:#ffffff;
+  --text-sub:#666;
+  --border:#e8e8e8;
+  --green:#2d7a3a;--green-bg:#edf7ef;
+  --amber:#8a5c00;--amber-bg:#fdf3dc;
+  --red:#b32c2c;--red-bg:#fdf0f0;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 8px rgba(0,0,0,.07);
+  --shadow-md:0 4px 20px rgba(0,0,0,.1);
+}
+
+body{font-family:'Inter',sans-serif;background:var(--grey1);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* ── LOGIN ─────────────────────────────────────────────── */
+#login-screen{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--black);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-wrap{width:100%;max-width:420px;padding:20px;}
+.login-card{
+  background:var(--black2);
+  border:1px solid #2a2a2a;
+  border-radius:20px;
+  padding:44px 40px;
+  text-align:center;
+  box-shadow:0 0 60px rgba(224,82,122,.08);
+}
+.login-wordmark{
+  font-family:'Playfair Display',serif;
+  font-size:26px;font-weight:700;
+  color:var(--white);
+  letter-spacing:-.5px;
+  margin-bottom:6px;
+}
+.login-wordmark span{color:var(--pink);}
+.login-tagline{font-size:13px;color:#666;margin-bottom:32px;}
+.lf{
+  display:block;width:100%;
+  padding:13px 16px;
+  background:#1e1e1e;
+  border:1px solid #333;
+  border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;font-size:14px;
+  color:var(--white);outline:none;
+  margin-bottom:12px;
+  transition:border .2s;
+}
+.lf:focus{border-color:var(--pink);}
+.lf::placeholder{color:#444;}
+.login-btn{
+  display:block;width:100%;
+  padding:13px;
+  background:var(--pink);
+  border:none;border-radius:var(--radius-sm);
+  font-family:'Inter',sans-serif;font-size:14px;font-weight:600;
+  color:var(--white);cursor:pointer;
+  transition:background .2s;
+  letter-spacing:.2px;
+}
+.login-btn:hover{background:var(--pink-dark);}
+.login-err{
+  display:none;
+  background:rgba(179,44,44,.15);
+  border:1px solid rgba(179,44,44,.3);
+  color:#f08080;font-size:12px;
+  padding:9px 12px;border-radius:8px;
+  margin-top:10px;
+}
+.login-hint{font-size:12px;color:#444;margin-top:16px;line-height:1.7;}
+.login-hint strong{color:#777;}
+
+/* ── APP ────────────────────────────────────────────────── */
+#app{display:none;}
+.layout{display:flex;min-height:100vh;}
+
+/* ── SIDEBAR ─────────────────────────────────────────────── */
+.sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--black2);
+  border-right:1px solid #222;
+  display:flex;flex-direction:column;
+  padding:22px 14px;
+  position:fixed;top:0;left:0;height:100vh;
+  overflow-y:auto;z-index:10;
+}
+.sidebar-logo{margin-bottom:28px;padding:0 8px;}
+.logo-mark{
+  font-family:'Playfair Display',serif;
+  font-size:18px;font-weight:700;
+  color:var(--white);letter-spacing:-.3px;
+}
+.logo-mark span{color:var(--pink);}
+.logo-sub{font-size:11px;color:#555;margin-top:3px;}
+.nav-section-label{font-size:10px;font-weight:600;color:#444;text-transform:uppercase;letter-spacing:.08em;padding:0 12px;margin:14px 0 6px;}
+.nav-item{
+  display:flex;align-items:center;gap:9px;
+  padding:9px 12px;border-radius:var(--radius-sm);
+  border:none;background:transparent;
+  font-family:'Inter',sans-serif;font-size:13px;
+  color:#888;cursor:pointer;text-align:left;width:100%;
+  transition:all .15s;
+}
+.nav-item:hover{background:#1e1e1e;color:var(--white);}
+.nav-item.active{background:var(--pink-light);color:var(--pink);border:1px solid var(--pink-border);}
+.nav-count{
+  margin-left:auto;
+  background:#222;color:#888;
+  font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:999px;min-width:18px;text-align:center;
+}
+.nav-item.active .nav-count{background:rgba(224,82,122,.2);color:var(--pink);}
+.nav-divider{height:1px;background:#1e1e1e;margin:10px 6px;}
+.sidebar-bottom{margin-top:auto;padding-top:14px;border-top:1px solid #1e1e1e;}
+.user-chip{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;border-radius:var(--radius-sm);
+  background:#1a1a1a;border:1px solid #252525;
+}
+.user-avatar{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--pink);
+  display:flex;align-items:center;justify-content:center;
+  color:white;font-size:12px;font-weight:700;flex-shrink:0;
+}
+.user-name{font-size:12px;font-weight:500;color:var(--white);}
+.user-role{font-size:10px;color:#555;}
+.logout-btn{
+  display:flex;align-items:center;gap:8px;
+  width:100%;padding:8px 12px;border-radius:8px;
+  border:none;background:transparent;
+  font-family:'Inter',sans-serif;font-size:12px;color:#555;
+  cursor:pointer;margin-top:7px;transition:all .15s;
+}
+.logout-btn:hover{background:#1e1e1e;color:#e05;;}
+
+/* ── MAIN ────────────────────────────────────────────────── */
+.main{margin-left:240px;flex:1;display:flex;flex-direction:column;min-height:100vh;background:var(--grey1);}
+
+/* ── TOPBAR ───────────────────────────────────────────────── */
+.topbar{
+  background:var(--white);
+  border-bottom:1px solid var(--border);
+  padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  position:sticky;top:0;z-index:9;flex-wrap:wrap;
+}
+.topbar-left h1{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--text);}
+.topbar-left p{font-size:12px;color:var(--text-sub);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:9px;}
+.search-box{
+  display:flex;align-items:center;gap:8px;
+  background:var(--grey1);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:8px 12px;
+}
+.search-box input{border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
+.btn-primary{
+  padding:9px 16px;background:var(--black);border:none;
+  border-radius:var(--radius-sm);color:white;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:background .2s;white-space:nowrap;
+}
+.btn-primary:hover{background:var(--pink);}
+.btn-pink{background:var(--pink);}
+.btn-pink:hover{background:var(--pink-dark);}
+
+/* ── CONTENT ──────────────────────────────────────────────── */
+.content{padding:22px 28px;flex:1;}
+
+/* ── STATS ────────────────────────────────────────────────── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 18px;
+  box-shadow:var(--shadow);
+}
+.stat-label{font-size:11px;color:var(--text-sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em;font-weight:500;}
+.stat-val{font-size:28px;font-weight:700;color:var(--text);}
+.stat-val.pink{color:var(--pink);}
+.stat-sub{font-size:11px;color:var(--text-sub);margin-top:3px;}
+
+/* ── TABLE CARD ───────────────────────────────────────────── */
+.table-card{
+  background:var(--white);border:1px solid var(--border);
+  border-radius:var(--radius);box-shadow:var(--shadow);
+  margin-bottom:20px;overflow:hidden;
+}
+.table-card-head{
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+}
+.table-card-title{font-size:14px;font-weight:600;color:var(--text);}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;}
+.filter-btn{
+  padding:5px 11px;border-radius:6px;
+  border:1px solid var(--border);background:transparent;
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--text-sub);cursor:pointer;transition:all .15s;
+}
+.filter-btn:hover{border-color:var(--pink);color:var(--pink);}
+.filter-btn.active{background:var(--black);color:white;border-color:var(--black);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--grey1);}
+th{
+  font-size:11px;font-weight:600;color:var(--text-sub);
+  padding:10px 14px;text-align:left;
+  border-bottom:1px solid var(--border);
+  text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;
+}
+td{font-size:13px;padding:12px 14px;border-bottom:1px solid #f5f5f5;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .1s;cursor:pointer;}
+tbody tr:hover{background:#fafafa;}
+.sop-title-cell{display:flex;align-items:center;gap:8px;font-weight:500;}
+.sop-dot{width:7px;height:7px;border-radius:50%;background:var(--pink);flex-shrink:0;}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;white-space:nowrap;}
+.b-done{background:var(--green-bg);color:var(--green);}
+.b-review{background:var(--amber-bg);color:var(--amber);}
+.b-pending{background:rgba(224,82,122,.1);color:var(--pink-dark);}
+.b-draft{background:var(--grey2);color:var(--grey5);}
+.priority-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;}
+.p-high{background:var(--red-bg);color:var(--red);}
+.p-med{background:var(--amber-bg);color:var(--amber);}
+.p-low{background:var(--green-bg);color:var(--green);}
+.dept-tag{
+  display:inline-block;padding:3px 9px;border-radius:999px;
+  font-size:11px;background:var(--grey2);color:var(--grey5);font-weight:500;
+}
+.action-cell{display:flex;gap:4px;}
+.icon-btn{
+  width:28px;height:28px;border-radius:6px;
+  border:1px solid var(--border);background:transparent;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:13px;transition:all .15s;
+}
+.icon-btn:hover{background:var(--grey2);}
+.icon-btn.del:hover{background:var(--red-bg);border-color:#f0bcbc;}
+
+/* ── BOTTOM GRID ─────────────────────────────────────────── */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.bottom-card{background:var(--white);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);}
+.bottom-card-title{font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text);}
+.qa-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 14px;border-radius:var(--radius-sm);
+  background:var(--grey1);border:1px solid var(--border);
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
+  cursor:pointer;transition:all .15s;width:100%;margin-bottom:7px;text-align:left;
+}
+.qa-btn:hover{background:var(--grey2);border-color:var(--grey3);}
+.activity-item{padding:9px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.activity-name{font-size:13px;font-weight:500;}
+.activity-time{font-size:11px;color:var(--text-sub);margin-top:2px;}
+
+/* ── EDITOR ───────────────────────────────────────────────── */
+#editor-screen{display:none;min-height:100vh;flex-direction:column;background:var(--grey1);}
+.editor-topbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:10px 20px;display:flex;align-items:center;gap:10px;
+  position:sticky;top:0;z-index:20;flex-wrap:wrap;
+}
+.editor-back{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 12px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:transparent;
+  font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;
+  color:var(--text-sub);transition:all .15s;
+}
+.editor-back:hover{background:var(--grey2);}
+.editor-title-input{
+  flex:1;border:none;
+  font-family:'Playfair Display',serif;font-size:20px;font-weight:700;
+  color:var(--text);outline:none;background:transparent;min-width:150px;
+}
+.editor-title-input::placeholder{color:#ccc;}
+.editor-meta-bar{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.meta-sel{
+  padding:6px 10px;border-radius:6px;
+  border:1px solid var(--border);background:var(--grey1);
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--text);outline:none;
+}
+.autosave-txt{font-size:11px;color:var(--text-sub);}
+.btn-save{
+  padding:8px 16px;background:var(--black);border:none;
+  border-radius:var(--radius-sm);color:white;
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;
+}
+.btn-save:hover{background:var(--pink);}
+
+/* TOOLBAR */
+.editor-toolbar{
+  background:var(--white);border-bottom:1px solid var(--border);
+  padding:7px 20px;display:flex;align-items:center;gap:3px;flex-wrap:wrap;
+}
+.tb-btn{
+  width:30px;height:30px;border-radius:5px;border:1px solid transparent;
+  background:transparent;cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;color:var(--text);font-family:'Inter',sans-serif;
+}
+.tb-btn:hover{background:var(--grey2);border-color:var(--border);}
+.tb-sep{width:1px;height:20px;background:var(--border);margin:0 3px;}
+.tb-sel{
+  padding:5px 8px;border-radius:5px;border:1px solid var(--border);
+  background:var(--grey1);font-family:'Inter',sans-serif;font-size:12px;outline:none;
+}
+.ai-toolbar-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:5px 11px;border-radius:5px;
+  border:1px solid var(--pink-border);
+  background:var(--pink-light);color:var(--pink-dark);
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;
+  transition:all .15s;
+}
+.ai-toolbar-btn:hover{background:rgba(224,82,122,.2);}
+
+/* DOC AREA */
+.editor-body{display:flex;flex:1;}
+.editor-page-area{flex:1;background:#eeecea;padding:40px 24px;display:flex;justify-content:center;overflow-y:auto;}
+.doc-page{
+  background:var(--white);width:100%;max-width:760px;min-height:900px;
+  border-radius:2px;
+  box-shadow:0 1px 4px rgba(0,0,0,.1),0 8px 32px rgba(0,0,0,.08);
+  padding:64px 72px;
+}
+#doc-editor{
+  min-height:780px;outline:none;
+  font-family:'Lora',Georgia,serif;font-size:15.5px;line-height:1.9;color:var(--text);
+  caret-color:var(--pink);
+}
+#doc-editor:empty:before{
+  content:"Start writing your SOP here...\A\ADescribe the purpose, steps, and responsible parties.";
+  white-space:pre;color:#ccc;pointer-events:none;
+}
+#doc-editor h1{font-family:'Playfair Display',serif;font-size:28px;margin:24px 0 12px;line-height:1.3;font-weight:700;}
+#doc-editor h2{font-family:'Playfair Display',serif;font-size:21px;margin:20px 0 10px;color:var(--pink-dark);line-height:1.3;}
+#doc-editor h3{font-family:'Inter',sans-serif;font-size:15px;font-weight:600;margin:16px 0 8px;}
+#doc-editor ul,#doc-editor ol{padding-left:26px;margin:10px 0;}
+#doc-editor li{margin:5px 0;}
+#doc-editor blockquote{
+  border-left:3px solid var(--pink);padding:10px 18px;
+  background:rgba(224,82,122,.05);border-radius:0 8px 8px 0;
+  margin:14px 0;font-style:italic;color:var(--text-sub);
+}
+#doc-editor table{width:100%;border-collapse:collapse;margin:14px 0;}
+#doc-editor td,#doc-editor th{border:1px solid var(--border);padding:8px 12px;font-size:14px;}
+#doc-editor th{background:var(--grey1);font-weight:600;font-family:'Inter',sans-serif;}
+#doc-editor hr{border:none;border-top:2px solid var(--border);margin:20px 0;}
+
+.doc-footer{
+  background:var(--white);border-top:1px solid var(--border);
+  padding:7px 72px;display:flex;gap:20px;
+  font-size:11px;color:var(--text-sub);
+}
+
+/* ── AI PANEL ─────────────────────────────────────────────── */
+.ai-panel{
+  width:285px;flex-shrink:0;
+  background:var(--white);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;
+  height:calc(100vh - 108px);position:sticky;top:108px;
+  overflow:hidden;
+}
+.ai-panel-hdr{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:8px;
+  background:var(--black2);
+}
+.ai-panel-title{font-size:13px;font-weight:600;flex:1;color:var(--white);}
+.ai-badge{
+  font-size:10px;background:var(--pink);color:white;
+  padding:2px 7px;border-radius:999px;font-weight:600;
+}
+.ai-tabs{display:flex;border-bottom:1px solid var(--border);}
+.ai-tab{
+  flex:1;padding:9px 6px;border:none;background:transparent;
+  font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;
+  color:var(--text-sub);border-bottom:2px solid transparent;transition:all .15s;
+}
+.ai-tab.active{color:var(--pink);border-bottom-color:var(--pink);}
+.ai-tab:hover{background:var(--grey1);}
+.ai-content{flex:1;overflow-y:auto;padding:12px;}
+.ai-suggestion{
+  background:var(--grey1);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:11px;margin-bottom:10px;
+}
+.ai-suggestion-label{font-size:10px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.ai-suggestion-text{font-size:12px;line-height:1.6;color:var(--text);margin-bottom:8px;}
+.ai-apply-btn{font-size:11px;padding:4px 10px;background:var(--black);border:none;border-radius:5px;color:white;cursor:pointer;}
+.ai-apply-btn:hover{background:var(--pink);}
+.grammar-item{display:flex;gap:8px;padding:9px;border-radius:var(--radius-sm);margin-bottom:8px;font-size:12px;line-height:1.5;}
+.gi-error{background:var(--red-bg);border:1px solid #f0bcbc;}
+.gi-warn{background:var(--amber-bg);border:1px solid #f5d18a;}
+.gi-good{background:var(--green-bg);border:1px solid #a8d8a8;}
+.grammar-icon{font-size:14px;flex-shrink:0;}
+.grammar-text{flex:1;}
+.ai-prompt-area{padding:10px 12px;border-top:1px solid var(--border);}
+.ai-textarea{
+  width:100%;padding:8px 10px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--grey1);
+  font-family:'Inter',sans-serif;font-size:12px;color:var(--text);
+  outline:none;resize:none;min-height:58px;line-height:1.5;
+}
+.ai-textarea:focus{border-color:var(--pink);}
+.ai-send{
+  width:100%;margin-top:7px;padding:8px;
+  background:var(--black);border:none;border-radius:var(--radius-sm);
+  color:white;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;cursor:pointer;
+}
+.ai-send:hover{background:var(--pink);}
+.ai-loading{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-sub);padding:10px 0;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:bop .8s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bop{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+.ai-response{
+  background:var(--grey1);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:11px;
+  font-size:12px;line-height:1.7;color:var(--text);margin-bottom:10px;
+}
+.ai-response-label{font-size:10px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+
+/* ── TEMPLATES ───────────────────────────────────────────── */
+.template-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.tpl-card{
+  padding:14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--grey1);
+  cursor:pointer;transition:all .15s;text-align:left;width:100%;
+}
+.tpl-card:hover{border-color:var(--pink);background:rgba(224,82,122,.04);}
+.tpl-icon{font-size:20px;margin-bottom:6px;}
+.tpl-name{font-size:13px;font-weight:600;}
+.tpl-desc{font-size:11px;color:var(--text-sub);margin-top:2px;}
+
+/* ── MODAL ───────────────────────────────────────────────── */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,.5);backdrop-filter:blur(4px);
+  z-index:200;align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--white);border-radius:16px;padding:28px;
+  width:100%;max-width:480px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.2);
+  animation:slideUp .2s ease;
+}
+.modal.wide{max-width:560px;}
+@keyframes slideUp{from{transform:translateY(16px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;}
+.modal-close{
+  width:30px;height:30px;border-radius:6px;
+  border:1px solid var(--border);background:transparent;
+  cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;
+  color:var(--text-sub);
+}
+.modal-close:hover{background:var(--grey2);}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:12px;font-weight:500;color:var(--text-sub);margin-bottom:5px;display:block;}
+.form-input,.form-select{
+  width:100%;padding:10px 14px;border-radius:var(--radius-sm);
+  border:1px solid var(--border);background:var(--grey1);
+  font-family:'Inter',sans-serif;font-size:13px;color:var(--text);
+  outline:none;transition:border .15s;
+}
+.form-input:focus,.form-select:focus{border-color:var(--pink);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.btn-secondary{
+  padding:9px 16px;background:transparent;border:1px solid var(--border);
+  border-radius:var(--radius-sm);font-family:'Inter',sans-serif;font-size:13px;
+  color:var(--text-sub);cursor:pointer;
+}
+.btn-secondary:hover{background:var(--grey2);}
+
+/* INFO CARD */
+.info-card{background:var(--grey1);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:14px;font-size:13px;color:var(--text-sub);line-height:1.7;}
+.info-card strong{color:var(--text);}
+.step-item{display:flex;gap:10px;margin-bottom:12px;font-size:13px;line-height:1.6;}
+.step-num{
+  width:22px;height:22px;border-radius:50%;
+  background:var(--pink);color:white;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;
+}
+.settings-section{margin-bottom:22px;}
+.settings-label{font-size:11px;font-weight:600;color:var(--text-sub);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;}
+
+/* ── TOAST ───────────────────────────────────────────────── */
+.toast{
+  position:fixed;bottom:24px;right:24px;
+  background:var(--black);color:white;
+  padding:11px 16px;border-radius:var(--radius-sm);
+  font-size:13px;font-weight:500;z-index:9999;
+  opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;
+  border-left:3px solid var(--pink);
+}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-sub);}
+
+@media(max-width:1100px){.ai-panel{display:none;}}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stats-grid{grid-template-columns:1fr 1fr;}.bottom-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr;}.doc-page{padding:32px 22px;}.form-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-wordmark">SOP<span> Space</span></div>
+      <div class="login-tagline">Private workspace — sign in to continue</div>
+      <input class="lf" type="text" id="lu" placeholder="Username" autocomplete="username"/>
+      <input class="lf" type="password" id="lp" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"/>
+      <button class="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="login-err" id="lerr">Incorrect username or password. Please try again.</div>
+      <div class="login-hint">Default login: <strong>admin</strong> / <strong>sop2024</strong><br>Change your password in Settings after signing in.</div>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+<!-- DASHBOARD -->
+<div class="layout" id="dash">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">SOP<span> Space</span></div>
+      <div class="logo-sub">Private workspace</div>
+    </div>
+    <div class="nav-section-label">Departments</div>
+    <nav>
+      <button class="nav-item active" onclick="filterDept('All',this)">All SOPs <span class="nav-count" id="ca">0</span></button>
+      <button class="nav-item" onclick="filterDept('Operations',this)">Operations <span class="nav-count" id="co">0</span></button>
+      <button class="nav-item" onclick="filterDept('HR',this)">HR <span class="nav-count" id="ch">0</span></button>
+      <button class="nav-item" onclick="filterDept('Marketing',this)">Marketing <span class="nav-count" id="cm">0</span></button>
+      <button class="nav-item" onclick="filterDept('Sales',this)">Sales <span class="nav-count" id="cs">0</span></button>
+      <button class="nav-item" onclick="filterDept('Finance',this)">Finance <span class="nav-count" id="cf">0</span></button>
+    </nav>
+    <div class="nav-divider"></div>
+    <div class="nav-section-label">Workspace</div>
+    <nav>
+      <button class="nav-item" onclick="openTemplateModal()">Templates</button>
+      <button class="nav-item" onclick="openSettings()">Settings</button>
+      <button class="nav-item" onclick="showGuide()">Private Login Guide</button>
+      <button class="nav-item" onclick="exportSOPs()">Export Backup</button>
+      <button class="nav-item" onclick="importSOPs()">Import SOPs</button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-avatar" id="uavatar">A</div>
+        <div><div class="user-name" id="uname">Admin</div><div class="user-role">Workspace Owner</div></div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left"><h1 id="page-title">SOP Dashboard</h1><p id="page-sub">All your standard operating procedures in one place.</p></div>
+      <div class="topbar-right">
+        <div class="search-box">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="text" id="srch" placeholder="Search SOPs..." oninput="handleSearch()"/>
+        </div>
+        <button class="btn-primary btn-pink" onclick="openNewSOP()">+ New SOP</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total SOPs</div><div class="stat-val pink" id="st">0</div><div class="stat-sub">all departments</div></div>
+        <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" id="sd">0</div><div class="stat-sub">fully documented</div></div>
+        <div class="stat-card"><div class="stat-label">In Review</div><div class="stat-val" id="sr">0</div><div class="stat-sub">awaiting approval</div></div>
+        <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-val" id="sh">0</div><div class="stat-sub">urgent attention</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-head">
+          <div class="table-card-title">Knowledge Base</div>
+          <div class="filter-row">
+            <button class="filter-btn active" onclick="filterStatus('All',this)">All</button>
+            <button class="filter-btn" onclick="filterStatus('Completed',this)">Completed</button>
+            <button class="filter-btn" onclick="filterStatus('In Review',this)">In Review</button>
+            <button class="filter-btn" onclick="filterStatus('Pending',this)">Pending</button>
+            <button class="filter-btn" onclick="filterStatus('Draft',this)">Draft</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Title</th><th>Department</th><th>Owner</th><th>Priority</th><th>Status</th><th>Updated</th><th></th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+          <div id="empty" class="empty-state" style="display:none;">
+            <div style="font-size:32px;margin-bottom:10px;">📋</div>
+            <div style="font-size:15px;font-weight:600;margin-bottom:6px;">No SOPs found</div>
+            <div style="font-size:13px;">Click "+ New SOP" to create your first one.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="bottom-card">
+          <div class="bottom-card-title">Quick Actions</div>
+          <button class="qa-btn" onclick="openNewSOP()">+ Create New SOP</button>
+          <button class="qa-btn" onclick="openTemplateModal()">Use a Template</button>
+          <button class="qa-btn" onclick="exportSOPs()">Export All (JSON Backup)</button>
+          <button class="qa-btn" onclick="importSOPs()">Import SOPs</button>
+          <button class="qa-btn" onclick="showGuide()">How to Make This Private on Netlify</button>
+        </div>
+        <div class="bottom-card">
+          <div class="bottom-card-title">Recent Activity</div>
+          <div id="actlist"><div class="activity-item"><div class="activity-name" style="color:var(--text-sub);font-size:13px;">No activity yet — create your first SOP.</div></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- EDITOR -->
+<div id="editor-screen">
+  <div class="editor-topbar">
+    <button class="editor-back" onclick="backToDash()">&#8592; Back</button>
+    <input class="editor-title-input" id="etitle" placeholder="Untitled SOP"/>
+    <div class="editor-meta-bar">
+      <select id="edept" class="meta-sel"><option value="">Department</option><option>Operations</option><option>HR</option><option>Marketing</option><option>Sales</option><option>Finance</option></select>
+      <select id="eowner" class="meta-sel"><option value="">Owner</option></select>
+      <select id="estatus" class="meta-sel"><option value="Draft">Draft</option><option value="In Review">In Review</option><option value="Completed">Completed</option><option value="Pending">Pending</option></select>
+      <select id="epriority" class="meta-sel"><option value="Medium">Medium Priority</option><option value="High">High Priority</option><option value="Low">Low Priority</option></select>
+    </div>
+    <span class="autosave-txt" id="autosave-txt">Saved</span>
+    <button class="btn-save" onclick="saveDoc()">Save</button>
+  </div>
+
+  <div class="editor-toolbar">
+    <select class="tb-sel" onchange="formatBlock(this.value);this.value=''">
+      <option value="">Style</option>
+      <option value="h1">Heading 1</option>
+      <option value="h2">Heading 2</option>
+      <option value="h3">Heading 3</option>
+      <option value="blockquote">Quote</option>
+      <option value="p">Paragraph</option>
+    </select>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('bold')"><b>B</b></button>
+    <button class="tb-btn" onclick="fmt('italic')"><i>I</i></button>
+    <button class="tb-btn" onclick="fmt('underline')"><u>U</u></button>
+    <button class="tb-btn" onclick="fmt('strikeThrough')"><s>S</s></button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('insertUnorderedList')" title="Bullet list">&#8226;&#8801;</button>
+    <button class="tb-btn" onclick="fmt('insertOrderedList')" title="Numbered list">1&#8801;</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="insertTable()" title="Insert table">&#8862;</button>
+    <button class="tb-btn" onclick="insertDivider()" title="Divider">&#8213;</button>
+    <button class="tb-btn" onclick="insertChecklist()" title="Checklist">&#9745;</button>
+    <div class="tb-sep"></div>
+    <button class="tb-btn" onclick="fmt('undo')" title="Undo">&#8617;</button>
+    <button class="tb-btn" onclick="fmt('redo')" title="Redo">&#8618;</button>
+    <div class="tb-sep"></div>
+    <button class="ai-toolbar-btn" onclick="runGrammar()">&#10024; Check Writing</button>
+    <button class="ai-toolbar-btn" onclick="showAiTab('ask')">&#129302; AI Assist</button>
+  </div>
+
+  <div class="editor-body">
+    <div class="editor-page-area">
+      <div class="doc-page">
+        <div id="doc-editor" contenteditable="true" spellcheck="true" oninput="onDocInput()"></div>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-panel-hdr">
+        <div class="ai-panel-title">AI Writing Assistant</div>
+        <span class="ai-badge">Live</span>
+      </div>
+      <div class="ai-tabs">
+        <button class="ai-tab active" id="tab-grammar" onclick="switchAiTab('grammar',this)">Grammar</button>
+        <button class="ai-tab" id="tab-suggest" onclick="switchAiTab('suggest',this)">Suggestions</button>
+        <button class="ai-tab" id="tab-ask" onclick="switchAiTab('ask',this)">Ask AI</button>
+      </div>
+      <div class="ai-content" id="ai-content">
+        <div style="font-size:12px;color:var(--text-sub);text-align:center;padding:20px 10px;line-height:1.6;">Click <strong>Check Writing</strong> in the toolbar to scan your document for grammar and style improvements.</div>
+      </div>
+      <div class="ai-prompt-area" id="ai-prompt-area" style="display:none;">
+        <textarea class="ai-textarea" id="ai-input" placeholder="Ask anything... e.g. 'Make this more professional' or 'Add onboarding steps'"></textarea>
+        <button class="ai-send" onclick="sendAiPrompt()">Ask AI</button>
+      </div>
+    </div>
+  </div>
+  <div class="doc-footer">
+    <span>Words: <strong id="wc">0</strong></span>
+    <span>Characters: <strong id="cc">0</strong></span>
+    <span id="lastsaved" style="margin-left:auto;"></span>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL: NEW SOP -->
+<div class="modal-overlay" id="m-new">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">New SOP</div><button class="modal-close" onclick="closeModal('m-new')">&#10005;</button></div>
+    <div class="form-group"><label class="form-label">Title *</label><input class="form-input" id="f-title" placeholder="e.g. Client Onboarding Process"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Department *</label><select class="form-select" id="f-dept"><option value="">Select</option><option>Operations</option><option>HR</option><option>Marketing</option><option>Sales</option><option>Finance</option></select></div>
+      <div class="form-group"><label class="form-label">Owner *</label><input class="form-input" id="f-owner" placeholder="e.g. Maria"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="f-status"><option value="Draft">Draft</option><option value="In Review">In Review</option><option value="Completed">Completed</option><option value="Pending">Pending</option></select></div>
+      <div class="form-group"><label class="form-label">Priority</label><select class="form-select" id="f-priority"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal('m-new')">Cancel</button>
+      <button class="btn-primary btn-pink" onclick="saveNewSOP()">Open in Editor</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: TEMPLATES -->
+<div class="modal-overlay" id="m-tpl">
+  <div class="modal wide">
+    <div class="modal-hdr"><div class="modal-title">Templates</div><button class="modal-close" onclick="closeModal('m-tpl')">&#10005;</button></div>
+    <p style="font-size:13px;color:var(--text-sub);margin-bottom:18px;">Start with a pre-built SOP and customize it.</p>
+    <div class="template-grid" id="tpl-grid"></div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('m-tpl')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- MODAL: SETTINGS -->
+<div class="modal-overlay" id="m-settings">
+  <div class="modal">
+    <div class="modal-hdr"><div class="modal-title">Settings</div><button class="modal-close" onclick="closeModal('m-settings')">&#10005;</button></div>
+    <div class="settings-section">
+      <div class="settings-label">Change Password</div>
+      <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" type="password" id="s-cur"/></div>
+      <div class="form-group"><label class="form-label">New Password</label><input class="form-input" type="password" id="s-new"/></div>
+      <div class="form-group"><label class="form-label">New Username (optional)</label><input class="form-input" id="s-user" placeholder="Leave blank to keep current"/></div>
+      <button class="btn-primary" onclick="changePassword()" style="width:100%;">Update Credentials</button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Team Members</div>
+      <div class="form-group"><label class="form-label">Names (comma separated)</label><input class="form-input" id="s-members" placeholder="Maria, James, Nicole, Chris"/></div>
+      <button class="btn-primary" onclick="saveMembers()" style="width:100%;">Save Team</button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label" style="color:var(--red);">Danger Zone</div>
+      <button onclick="clearData()" style="width:100%;padding:10px;border-radius:var(--radius-sm);border:1px solid #f0bcbc;background:var(--red-bg);color:var(--red);font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;">Delete All SOP Data</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: GUIDE -->
+<div class="modal-overlay" id="m-guide">
+  <div class="modal wide">
+    <div class="modal-hdr"><div class="modal-title">How to Make This App Private</div><button class="modal-close" onclick="closeModal('m-guide')">&#10005;</button></div>
+    <div class="info-card"><strong>Option 1 — Built-in Login (Free, already active)</strong><br>Your app already has a login screen. Only people with your credentials can access it. Change them in Settings.</div>
+    <p style="font-size:13px;font-weight:600;margin-bottom:12px;">Option 2 — Netlify Password Protection</p>
+    <div class="step-item"><div class="step-num">1</div><div>Go to <strong>app.netlify.com</strong> and open your site</div></div>
+    <div class="step-item"><div class="step-num">2</div><div>Click <strong>Site configuration</strong> &rarr; <strong>Access control</strong></div></div>
+    <div class="step-item"><div class="step-num">3</div><div>Under <strong>Visitor access</strong>, enable <strong>Password protection</strong></div></div>
+    <div class="step-item"><div class="step-num">4</div><div>Set your password and click Save. Netlify will require it before anyone can load your app.</div></div>
+    <div class="info-card" style="background:var(--green-bg);border-color:#a8d8a8;color:var(--green);margin-top:10px;"><strong>Recommendation:</strong> The built-in login is sufficient for personal use. Change the default password in Settings right away.</div>
+    <div class="modal-footer"><button class="btn-secondary" onclick="closeModal('m-guide')">Got it</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="imp-file" accept=".json" style="display:none;" onchange="handleImport(event)"/>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let sops     = JSON.parse(localStorage.getItem('sopv3-sops')     || '[]');
+let activity = JSON.parse(localStorage.getItem('sopv3-activity') || '[]');
+let members  = JSON.parse(localStorage.getItem('sopv3-members')  || '["Maria","James","Nicole","Chris"]');
+let fDept='All', fStatus='All', fSearch='', editorId=null, asTimer=null;
+
+function getCreds(){
+  return {
+    user: localStorage.getItem('sopv3-user') || 'admin',
+    pass: localStorage.getItem('sopv3-pass') || 'sop2024'
+  };
+}
+
+// ══════════════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════════════
+function doLogin(){
+  const u = (document.getElementById('lu').value || '').trim();
+  const p =  document.getElementById('lp').value  || '';
+  const c = getCreds();
+  const err = document.getElementById('lerr');
+  if(u === c.user && p === c.pass){
+    err.style.display = 'none';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('uname').textContent   = u;
+    document.getElementById('uav').textContent = u[0].toUpperCase();
+    fillOwnerSel();
+    if(sops.length === 0) seedData();
+    render();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('lp').value = '';
+    document.getElementById('lp').focus();
+  }
+}
+
+function doLogout(){
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('lu').value = '';
+  document.getElementById('lp').value = '';
+}
+
+function changePassword(){
+  const cur = document.getElementById('s-cur').value;
+  const neu = document.getElementById('s-new').value;
+  const nu  = document.getElementById('s-user').value.trim();
+  if(cur !== getCreds().pass){ showToast('Current password is incorrect.'); return; }
+  if(neu.length < 4){ showToast('New password must be at least 4 characters.'); return; }
+  localStorage.setItem('sopv3-pass', neu);
+  if(nu) localStorage.setItem('sopv3-user', nu);
+  showToast('Credentials updated successfully.');
+  closeModal('m-settings');
+}
+
+function saveMembers(){
+  members = document.getElementById('s-members').value.split(',').map(m=>m.trim()).filter(Boolean);
+  localStorage.setItem('sopv3-members', JSON.stringify(members));
+  fillOwnerSel();
+  showToast('Team members saved.');
+  closeModal('m-settings');
+}
+
+// ══════════════════════════════════════════════════════════
+// SEED
+// ══════════════════════════════════════════════════════════
+const TPLS = [
+  {icon:'👋',name:'Client Onboarding',dept:'Operations',desc:'New client step-by-step process',
+   body:`<h1>Client Onboarding SOP</h1><h2>Purpose</h2><p>This SOP ensures every new client receives a consistent, professional onboarding experience.</p><h2>Steps</h2><ol><li><strong>Send welcome email</strong> within 24 hours of signing</li><li><strong>Schedule kickoff call</strong> — use Calendly link</li><li><strong>Set up client folder</strong> in Google Drive</li><li><strong>Add client to project management tool</strong></li><li><strong>Send onboarding questionnaire</strong></li><li><strong>Hold kickoff call</strong> — introduce team and review scope</li><li><strong>Send follow-up summary</strong> within 48 hours</li></ol><h2>Responsible Party</h2><p>Account Manager / Operations Lead</p><h2>Notes</h2><blockquote>Always CC the client success manager on all onboarding emails.</blockquote>`},
+  {icon:'📱',name:'Social Media Workflow',dept:'Marketing',desc:'Monthly content and publishing process',
+   body:`<h1>Social Media Workflow SOP</h1><h2>Purpose</h2><p>To ensure consistent, high-quality content is published on schedule every month.</p><h2>Monthly Steps</h2><ol><li><strong>Week 1:</strong> Brainstorm content themes</li><li><strong>Week 1:</strong> Build content calendar in scheduling tool</li><li><strong>Week 2:</strong> Design graphics and write captions</li><li><strong>Week 2:</strong> Get approval from marketing lead</li><li><strong>Week 3–4:</strong> Schedule and publish posts</li><li><strong>End of month:</strong> Review analytics and document learnings</li></ol><h2>Platforms</h2><ul><li>Facebook</li><li>Instagram</li><li>LinkedIn</li></ul><blockquote>All posts must be reviewed 48 hours before publishing.</blockquote>`},
+  {icon:'💰',name:'Lead Qualification',dept:'Sales',desc:'How to score and qualify incoming leads',
+   body:`<h1>Lead Qualification SOP</h1><h2>Purpose</h2><p>To consistently evaluate leads so the sales team focuses on the highest-value opportunities.</p><h2>BANT Framework</h2><ul><li><strong>Budget:</strong> Can they afford our services?</li><li><strong>Authority:</strong> Are we speaking to the decision maker?</li><li><strong>Need:</strong> Do they have a problem we can solve?</li><li><strong>Timeline:</strong> Ready to start within 90 days?</li></ul><h2>Steps</h2><ol><li>Receive lead from CRM or website form</li><li>Run BANT evaluation (score 1–4)</li><li>Score 3+: Mark qualified, schedule discovery call</li><li>Score below 3: Add to nurture sequence</li><li>Log all notes in CRM</li></ol><blockquote>Qualified leads must be contacted within 24 hours.</blockquote>`},
+  {icon:'👥',name:'Employee Onboarding',dept:'HR',desc:'New hire first-week checklist',
+   body:`<h1>Employee Onboarding SOP</h1><h2>Before Start Date</h2><ul><li>Send welcome email with first-day instructions</li><li>Set up workstation and accounts (email, Slack, tools)</li><li>Prepare onboarding packet</li></ul><h2>Day 1</h2><ol><li>Office or virtual tour</li><li>Team introductions</li><li>IT setup and tool walkthroughs</li><li>Review company values and culture</li></ol><h2>Week 1</h2><ol><li>Shadow team members</li><li>Complete compliance training</li><li>Set 30-60-90 day goals with manager</li><li>End-of-week check-in with HR</li></ol><blockquote>Assign a buddy or mentor for the first 30 days.</blockquote>`},
+  {icon:'💳',name:'Payroll Processing',dept:'Finance',desc:'End-of-month payroll steps',
+   body:`<h1>Payroll Processing SOP</h1><h2>Monthly Checklist</h2><ol><li><strong>25th:</strong> Collect timesheets from all team leads</li><li><strong>26th:</strong> Verify hours and flag discrepancies</li><li><strong>27th:</strong> Calculate gross pay, deductions, and net pay</li><li><strong>28th:</strong> Submit payroll via system</li><li><strong>Last day:</strong> Confirm all transfers processed</li><li><strong>1st of next month:</strong> Archive payroll records</li></ol><blockquote>Double-check new hires and contract changes before submission.</blockquote>`},
+  {icon:'🔄',name:'Incident Response',dept:'Operations',desc:'Steps for handling operational issues',
+   body:`<h1>Incident Response SOP</h1><h2>Severity Levels</h2><ul><li><strong>P1 Critical:</strong> Service down — immediate action</li><li><strong>P2 High:</strong> Major feature broken — respond within 2 hours</li><li><strong>P3 Medium:</strong> Minor issue — respond within 24 hours</li></ul><h2>Steps</h2><ol><li>Identify and classify the incident</li><li>Notify relevant team leads immediately</li><li>Assign incident owner</li><li>Investigate and document findings</li><li>Communicate status to affected clients</li><li>Implement fix and verify resolution</li><li>Post-incident review within 48 hours</li></ol><blockquote>All P1 incidents must escalate to management within 15 minutes.</blockquote>`},
+];
+
+function seedData(){
+  sops = [
+    {id:uid(),title:'Client Onboarding',dept:'Operations',owner:'Maria',status:'Completed',priority:'High',body:TPLS[0].body,updated:Date.now()-7200000},
+    {id:uid(),title:'Social Media Workflow',dept:'Marketing',owner:'James',status:'In Review',priority:'Medium',body:TPLS[1].body,updated:Date.now()-18000000},
+    {id:uid(),title:'Payroll Processing',dept:'Finance',owner:'Nicole',status:'Pending',priority:'High',body:TPLS[4].body,updated:Date.now()-86400000},
+    {id:uid(),title:'Lead Qualification',dept:'Sales',owner:'Chris',status:'Completed',priority:'Medium',body:TPLS[2].body,updated:Date.now()},
+  ];
+  save();
+}
+
+// ══════════════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════════════
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2); }
+function save(){
+  localStorage.setItem('sopv3-sops', JSON.stringify(sops));
+  localStorage.setItem('sopv3-activity', JSON.stringify(activity));
+}
+function timeAgo(ts){
+  const d=Date.now()-ts, m=Math.floor(d/60000);
+  if(m<1) return 'Just now';
+  if(m<60) return m+'m ago';
+  const h=Math.floor(m/60);
+  if(h<24) return h+'h ago';
+  if(Math.floor(h/24)===1) return 'Yesterday';
+  return Math.floor(h/24)+'d ago';
+}
+function bClass(s){ return s==='Completed'?'b-done':s==='In Review'?'b-review':s==='Pending'?'b-pending':'b-draft'; }
+function pClass(p){ return p==='High'?'p-high':p==='Low'?'p-low':'p-med'; }
+function log(txt){ activity.unshift({text:txt,ts:Date.now()}); if(activity.length>30) activity.pop(); }
+function showToast(m){ const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2800); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// ══════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════
+function render(){
+  const f = sops.filter(s=>{
+    return (fDept==='All'||s.dept===fDept)
+      && (fStatus==='All'||s.status===fStatus)
+      && (!fSearch||(s.title+s.owner+s.dept).toLowerCase().includes(fSearch));
+  });
+  // stats
+  document.getElementById('st').textContent = sops.length;
+  document.getElementById('sd').textContent = sops.filter(s=>s.status==='Completed').length;
+  document.getElementById('sr').textContent = sops.filter(s=>s.status==='In Review').length;
+  document.getElementById('sh').textContent = sops.filter(s=>s.priority==='High').length;
+  // counts
+  ['ca','co','ch','cm','cs','cf'].forEach((id,i)=>{
+    const depts=[null,'Operations','HR','Marketing','Sales','Finance'];
+    document.getElementById(id).textContent = i===0?sops.length:sops.filter(s=>s.dept===depts[i]).length;
+  });
+  // table
+  const tbody=document.getElementById('tbody'), emp=document.getElementById('empty');
+  if(!f.length){ tbody.innerHTML=''; emp.style.display='block'; return; }
+  emp.style.display='none';
+  tbody.innerHTML=f.map(s=>`
+    <tr onclick="openEditor('${s.id}')">
+      <td><div class="sop-title-cell"><div class="sop-dot"></div>${s.title||'Untitled'}</div></td>
+      <td><span class="dept-tag">${s.dept||'—'}</span></td>
+      <td style="color:var(--text-sub)">${s.owner||'—'}</td>
+      <td><span class="priority-pill ${pClass(s.priority||'Medium')}">${s.priority||'Medium'}</span></td>
+      <td><span class="badge ${bClass(s.status)}">${s.status}</span></td>
+      <td style="color:var(--text-sub)">${timeAgo(s.updated)}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="action-cell">
+          <button class="icon-btn" title="Edit" onclick="openEditor('${s.id}')">&#9998;</button>
+          <button class="icon-btn del" title="Delete" onclick="deleteSOP('${s.id}')">&#128465;</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  // activity
+  const al=document.getElementById('actlist');
+  al.innerHTML = activity.length
+    ? activity.slice(0,6).map(a=>`<div class="activity-item"><div class="activity-name">${a.text}</div><div class="activity-time">${timeAgo(a.ts)}</div></div>`).join('')
+    : '<div class="activity-item"><div class="activity-name" style="color:var(--text-sub);font-size:13px;">No activity yet.</div></div>';
+}
+
+// ══════════════════════════════════════════════════════════
+// FILTERS
+// ══════════════════════════════════════════════════════════
+function filterDept(d,btn){
+  fDept=d;
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-title').textContent = d==='All'?'SOP Dashboard':d+' SOPs';
+  render();
+}
+function filterStatus(s,btn){
+  fStatus=s;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+function handleSearch(){ fSearch=document.getElementById('srch').value.toLowerCase(); render(); }
+
+// ══════════════════════════════════════════════════════════
+// NEW SOP
+// ══════════════════════════════════════════════════════════
+function openNewSOP(){
+  ['f-title','f-owner'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-dept').value='';
+  document.getElementById('f-status').value='Draft';
+  document.getElementById('f-priority').value='Medium';
+  document.getElementById('m-new').classList.add('open');
+  setTimeout(()=>document.getElementById('f-title').focus(),100);
+}
+function saveNewSOP(){
+  const title=document.getElementById('f-title').value.trim();
+  const dept=document.getElementById('f-dept').value;
+  const owner=document.getElementById('f-owner').value.trim();
+  const status=document.getElementById('f-status').value;
+  const priority=document.getElementById('f-priority').value;
+  if(!title||!dept||!owner){ showToast('Please fill in Title, Department, and Owner.'); return; }
+  const id=uid();
+  sops.unshift({id,title,dept,owner,status,priority,body:'',updated:Date.now()});
+  log(owner+' created "'+title+'"');
+  save(); render();
+  closeModal('m-new');
+  openEditor(id);
+}
+function deleteSOP(id){
+  const s=sops.find(x=>x.id===id); if(!s) return;
+  if(!confirm('Delete "'+s.title+'"? This cannot be undone.')) return;
+  sops=sops.filter(x=>x.id!==id);
+  log('"'+s.title+'" was deleted');
+  save(); render();
+  showToast('SOP deleted.');
+}
+
+// ══════════════════════════════════════════════════════════
+// EDITOR
+// ══════════════════════════════════════════════════════════
+function fillOwnerSel(){
+  const sel=document.getElementById('eowner');
+  const cur=sel.value;
+  sel.innerHTML='<option value="">Owner</option>'+members.map(m=>`<option value="${m}">${m}</option>`).join('');
+  sel.value=cur;
+}
+function openEditor(id){
+  const s=sops.find(x=>x.id===id); if(!s) return;
+  editorId=id;
+  document.getElementById('dash').style.display='none';
+  const es=document.getElementById('editor-screen');
+  es.style.display='flex';
+  document.getElementById('etitle').value=s.title||'';
+  document.getElementById('edept').value=s.dept||'';
+  document.getElementById('estatus').value=s.status||'Draft';
+  document.getElementById('epriority').value=s.priority||'Medium';
+  document.getElementById('doc-editor').innerHTML=s.body||'';
+  fillOwnerSel();
+  document.getElementById('eowner').value=s.owner||'';
+  updateCounts();
+  document.getElementById('autosave-txt').textContent='Saved';
+  document.getElementById('lastsaved').textContent='Last saved: '+timeAgo(s.updated);
+  document.getElementById('ai-content').innerHTML='<div style="font-size:12px;color:var(--text-sub);text-align:center;padding:20px 10px;line-height:1.6;">Click <strong>Check Writing</strong> in the toolbar to get AI grammar and style feedback.</div>';
+  document.getElementById('ai-prompt-area').style.display='none';
+  switchAiTab('grammar',document.getElementById('tab-grammar'));
+}
+function backToDash(){
+  saveDoc(true);
+  document.getElementById('editor-screen').style.display='none';
+  document.getElementById('dash').style.display='flex';
+  editorId=null; render();
+}
+function saveDoc(silent){
+  if(!editorId) return;
+  const i=sops.findIndex(x=>x.id===editorId); if(i<0) return;
+  sops[i].title=document.getElementById('etitle').value||'Untitled';
+  sops[i].dept=document.getElementById('edept').value;
+  sops[i].owner=document.getElementById('eowner').value;
+  sops[i].status=document.getElementById('estatus').value;
+  sops[i].priority=document.getElementById('epriority').value;
+  sops[i].body=document.getElementById('doc-editor').innerHTML;
+  sops[i].updated=Date.now();
+  log(sops[i].owner+' updated "'+sops[i].title+'"');
+  save();
+  document.getElementById('autosave-txt').textContent='Saved';
+  document.getElementById('lastsaved').textContent='Last saved: just now';
+  if(!silent) showToast('Saved successfully.');
+  setTimeout(()=>{ if(document.getElementById('autosave-txt')) document.getElementById('autosave-txt').textContent='All changes saved'; },2000);
+}
+function onDocInput(){
+  updateCounts();
+  document.getElementById('autosave-txt').textContent='Unsaved changes...';
+  clearTimeout(asTimer);
+  asTimer=setTimeout(()=>saveDoc(true),3000);
+}
+function updateCounts(){
+  const txt=document.getElementById('doc-editor').innerText||'';
+  document.getElementById('wc').textContent=txt.trim()?txt.trim().split(/\s+/).length:0;
+  document.getElementById('cc').textContent=txt.length;
+}
+function fmt(cmd){ document.execCommand(cmd,false,null); document.getElementById('doc-editor').focus(); }
+function formatBlock(tag){ if(!tag) return; document.execCommand('formatBlock',false,tag); document.getElementById('doc-editor').focus(); }
+function insertTable(){ document.execCommand('insertHTML',false,'<table><tr><th>Column 1</th><th>Column 2</th><th>Column 3</th></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></table><p></p>'); document.getElementById('doc-editor').focus(); }
+function insertDivider(){ document.execCommand('insertHTML',false,'<hr/><p></p>'); document.getElementById('doc-editor').focus(); }
+function insertChecklist(){ document.execCommand('insertHTML',false,'<ul><li>&#9744; Step one</li><li>&#9744; Step two</li><li>&#9744; Step three</li></ul><p></p>'); document.getElementById('doc-editor').focus(); }
+
+// ══════════════════════════════════════════════════════════
+// AI
+// ══════════════════════════════════════════════════════════
+function switchAiTab(tab,btn){
+  document.querySelectorAll('.ai-tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ai-prompt-area').style.display=tab==='ask'?'block':'none';
+  if(tab==='suggest') runSuggestions();
+}
+function showAiTab(tab){
+  const map={grammar:'tab-grammar',suggest:'tab-suggest',ask:'tab-ask'};
+  switchAiTab(tab,document.getElementById(map[tab]));
+}
+async function callClaude(prompt){
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  const d=await res.json();
+  return d.content?.[0]?.text||'';
+}
+async function runGrammar(){
+  const text=document.getElementById('doc-editor').innerText||'';
+  if(text.trim().length<10){ showToast('Write some content first.'); return; }
+  switchAiTab('grammar',document.getElementById('tab-grammar'));
+  const c=document.getElementById('ai-content');
+  c.innerHTML=`<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Checking your writing...</span></div>`;
+  const prompt=`You are a professional grammar and writing coach for business SOPs.
+Analyze this text and return ONLY a valid JSON array (no markdown, no explanation) with up to 6 items, each:
+{"type":"error"|"warn"|"good","icon":"emoji","label":"short label","text":"feedback (1-2 sentences)","fix":"corrected phrase or empty string"}
+
+Text: """${text.slice(0,1500)}"""`;
+  try{
+    const raw=await callClaude(prompt);
+    const items=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    c.innerHTML=items.map(item=>`
+      <div class="grammar-item gi-${item.type}">
+        <div class="grammar-icon">${item.icon}</div>
+        <div class="grammar-text">
+          <div style="font-weight:600;margin-bottom:3px;">${item.label}</div>
+          <div>${item.text}</div>
+          ${item.fix?`<div style="margin-top:4px;color:var(--green);font-size:11px;">Suggestion: <em>${item.fix}</em></div>`:''}
+        </div>
+      </div>`).join('');
+  }catch{
+    c.innerHTML=`<div class="grammar-item gi-warn"><div class="grammar-icon">&#9888;</div>
+    <div class="grammar-text"><div style="font-weight:600;">AI not connected</div>
+    <div>Grammar check uses the Claude AI API. Ensure your app has API access.</div></div></div>
+    <div style="font-size:12px;color:var(--text-sub);margin-top:12px;padding:10px;background:var(--grey1);border-radius:8px;border:1px solid var(--border);">
+    <strong>Manual tips:</strong><br>
+    &#8226; Use active voice ("Do this" not "This should be done")<br>
+    &#8226; Keep sentences under 20 words<br>
+    &#8226; Number your steps clearly<br>
+    &#8226; Avoid jargon your team may not know</div>`;
+  }
+}
+async function runSuggestions(){
+  const text=document.getElementById('doc-editor').innerText||'';
+  const title=document.getElementById('etitle').value||'';
+  if(text.trim().length<10){ document.getElementById('ai-content').innerHTML='<div style="font-size:12px;color:var(--text-sub);text-align:center;padding:20px 10px;">Write content first to get AI suggestions.</div>'; return; }
+  const c=document.getElementById('ai-content');
+  c.innerHTML=`<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Generating suggestions...</span></div>`;
+  const prompt=`You are an SOP writing expert. Review this SOP and return ONLY a valid JSON array (no markdown) of 3 improvement suggestions, each:
+{"label":"short title (5 words max)","text":"actionable suggestion (2-3 sentences)","snippet":"short example text they could add"}
+Title: ${title}
+Content: ${text.slice(0,1000)}`;
+  try{
+    const raw=await callClaude(prompt);
+    const items=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    c.innerHTML=items.map(item=>`
+      <div class="ai-suggestion">
+        <div class="ai-suggestion-label">${item.label}</div>
+        <div class="ai-suggestion-text">${item.text}</div>
+        ${item.snippet?`<div style="font-size:11px;font-style:italic;color:var(--text-sub);margin-bottom:8px;">"${item.snippet}"</div>
+        <button class="ai-apply-btn" onclick="insertSnippet(this,'${item.snippet.replace(/'/g,"\\'")}')">Insert</button>`:''}
+      </div>`).join('');
+  }catch{
+    c.innerHTML='<div style="font-size:12px;color:var(--text-sub);padding:10px;">Could not load suggestions. Check your connection.</div>';
+  }
+}
+function insertSnippet(btn,text){ document.getElementById('doc-editor').focus(); document.execCommand('insertHTML',false,'<p>'+text+'</p>'); showToast('Text inserted.'); }
+async function sendAiPrompt(){
+  const prompt=document.getElementById('ai-input').value.trim(); if(!prompt) return;
+  const docText=document.getElementById('doc-editor').innerText||'';
+  const c=document.getElementById('ai-content');
+  c.innerHTML=`<div class="ai-loading"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Thinking...</span></div>`;
+  const full=`You are an expert SOP writing assistant. The user is editing this SOP:
+"""${docText.slice(0,1200)}"""
+User asks: "${prompt}"
+Give a helpful, specific, professional response in 2-4 sentences.`;
+  try{
+    const reply=await callClaude(full);
+    c.innerHTML=`<div class="ai-response"><div class="ai-response-label">AI Response</div>${reply}</div>`;
+    document.getElementById('ai-input').value='';
+  }catch{
+    c.innerHTML='<div class="ai-response">Could not connect. Please check your internet connection.</div>';
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// TEMPLATES
+// ══════════════════════════════════════════════════════════
+function openTemplateModal(){
+  document.getElementById('tpl-grid').innerHTML=TPLS.map((t,i)=>`
+    <button class="tpl-card" onclick="useTemplate(${i})">
+      <div class="tpl-icon">${t.icon}</div>
+      <div class="tpl-name">${t.name}</div>
+      <div class="tpl-desc">${t.desc}</div>
+    </button>`).join('');
+  document.getElementById('m-tpl').classList.add('open');
+}
+function useTemplate(i){
+  const t=TPLS[i];
+  closeModal('m-tpl');
+  const id=uid();
+  sops.unshift({id,title:t.name,dept:t.dept,owner:members[0]||'Admin',status:'Draft',priority:'Medium',body:t.body,updated:Date.now()});
+  log('Created from template: "'+t.name+'"');
+  save(); render();
+  openEditor(id);
+}
+
+// ══════════════════════════════════════════════════════════
+// SETTINGS / GUIDE
+// ══════════════════════════════════════════════════════════
+function openSettings(){
+  document.getElementById('s-cur').value='';
+  document.getElementById('s-new').value='';
+  document.getElementById('s-user').value='';
+  document.getElementById('s-members').value=members.join(', ');
+  document.getElementById('m-settings').classList.add('open');
+}
+function showGuide(){ document.getElementById('m-guide').classList.add('open'); }
+function clearData(){
+  if(!confirm('This will delete ALL your SOPs. Are you sure?')) return;
+  sops=[]; activity=[];
+  localStorage.removeItem('sopv3-sops');
+  localStorage.removeItem('sopv3-activity');
+  save(); render();
+  showToast('All data cleared.');
+  closeModal('m-settings');
+}
+
+// ══════════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ══════════════════════════════════════════════════════════
+function exportSOPs(){
+  const blob=new Blob([JSON.stringify({sops,exported:new Date().toISOString()},null,2)],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
+  a.download='sop-space-backup-'+Date.now()+'.json'; a.click();
+  showToast('Backup exported.');
+}
+function importSOPs(){ document.getElementById('imp-file').click(); }
+function handleImport(e){
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.sops&&Array.isArray(d.sops)){
+        sops=[...d.sops,...sops];
+        log('Imported '+d.sops.length+' SOPs');
+        save(); render();
+        showToast('Imported '+d.sops.length+' SOPs.');
+      } else showToast('Invalid file format.');
+    } catch{ showToast('Could not read file.'); }
+  };
+  r.readAsText(f);
+  e.target.value='';
+}
+
+// ══════════════════════════════════════════════════════════
+// KEYBOARD + MODAL CLOSE
+// ══════════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape') ['m-new','m-tpl','m-settings','m-guide'].forEach(closeModal);
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'&&editorId){ e.preventDefault(); saveDoc(); }
+});
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{ if(e.target===o) o.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
