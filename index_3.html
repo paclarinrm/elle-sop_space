@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SOP Space</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --pink:#d4537e;--pink-dark:#b03d63;--pink-light:rgba(212,83,126,.13);--pink-pale:rgba(212,83,126,.06);
+  --pink-border:rgba(212,83,126,.25);
+  --bg:#0a0a0a;--bg2:#0f0f0f;--bg3:#141414;--bg4:#1a1a1a;
+  --border:#1e1e1e;--border2:#252525;--border3:#2e2e2e;
+  --text:#ebebeb;--text2:#aaa;--text3:#666;
+  --white:#fff;
+  --green:#4caf76;--green-bg:rgba(76,175,118,.12);
+  --amber:#e8a020;--amber-bg:rgba(232,160,32,.12);
+  --red:#e05555;--red-bg:rgba(224,85,85,.1);
+  --radius:10px;--radius-lg:14px;
+  --shadow:0 2px 20px rgba(0,0,0,.5);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;}
+
+/* ── AUTH ── */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.auth-card{background:var(--bg2);border:1px solid var(--border2);border-radius:18px;padding:44px 40px;width:100%;max-width:400px;box-shadow:0 24px 64px rgba(0,0,0,.7);}
+.auth-logo{font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--white);margin-bottom:4px;}
+.auth-logo span{color:var(--pink);}
+.auth-sub{font-size:12px;color:var(--text3);margin-bottom:28px;}
+.auth-tabs{display:flex;gap:0;margin-bottom:24px;background:var(--bg3);border-radius:8px;padding:3px;}
+.auth-tab{flex:1;padding:8px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--text3);cursor:pointer;border-radius:6px;transition:all .15s;}
+.auth-tab.active{background:var(--pink);color:var(--white);font-weight:500;}
+.af{display:block;width:100%;padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border3);background:var(--bg3);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;margin-bottom:10px;transition:border .15s;}
+.af:focus{border-color:var(--pink);}
+.af::placeholder{color:var(--text3);}
+.auth-btn{width:100%;padding:12px;background:var(--pink);border:none;border-radius:var(--radius);color:var(--white);font-family:'Inter',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:background .15s;margin-top:4px;}
+.auth-btn:hover{background:var(--pink-dark);}
+.auth-btn:disabled{opacity:.5;cursor:not-allowed;}
+.forgot-btn{width:100%;padding:9px;background:transparent;border:none;font-family:'Inter',sans-serif;font-size:12px;color:var(--text3);cursor:pointer;margin-top:6px;transition:color .15s;}
+.forgot-btn:hover{color:var(--pink);}
+.auth-msg{font-size:12px;margin-top:10px;padding:8px 12px;border-radius:8px;display:none;}
+.auth-msg.error{background:var(--red-bg);color:var(--red);display:block;}
+.auth-msg.success{background:var(--green-bg);color:var(--green);display:block;}
+.auth-hint{font-size:11px;color:var(--text3);margin-top:14px;text-align:center;line-height:1.7;}
+
+/* ── LAYOUT ── */
+#app{display:none;}
+.layout{display:flex;min-height:100vh;}
+.sidebar{width:236px;flex-shrink:0;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 12px;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:10;}
+.main{margin-left:236px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
+
+/* SIDEBAR */
+.s-logo{margin-bottom:24px;padding:4px 10px;}
+.s-logo-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--white);}
+.s-logo-title span{color:var(--pink);}
+.s-logo-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+nav{display:flex;flex-direction:column;gap:2px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--radius);border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;text-align:left;width:100%;transition:all .15s;}
+.ni:hover{background:var(--bg4);color:var(--text);}
+.ni.active{background:var(--pink-light);color:var(--pink);font-weight:500;}
+.ni-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+.ni-count{margin-left:auto;background:var(--bg4);color:var(--text3);font-size:10px;font-weight:600;padding:1px 6px;border-radius:999px;min-width:18px;text-align:center;}
+.ni.active .ni-count{background:var(--pink-light);color:var(--pink);}
+.s-divider{height:1px;background:var(--border);margin:10px 4px;}
+.s-bottom{margin-top:auto;padding-top:14px;border-top:1px solid var(--border);}
+.user-chip{display:flex;align-items:center;gap:9px;padding:9px 12px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);}
+.u-avatar{width:28px;height:28px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;color:var(--white);font-size:11px;font-weight:700;flex-shrink:0;}
+.u-name{font-size:12px;font-weight:500;color:var(--text);}
+.u-role{font-size:10px;color:var(--text3);}
+.logout-btn{display:flex;align-items:center;gap:8px;width:100%;padding:8px 12px;border-radius:8px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:var(--text3);cursor:pointer;margin-top:6px;transition:all .15s;}
+.logout-btn:hover{background:var(--bg4);color:var(--pink);}
+
+/* TOPBAR */
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:9;flex-wrap:wrap;}
+.topbar-left h1{font-family:'Playfair Display',serif;font-size:21px;font-weight:700;color:var(--white);}
+.topbar-left p{font-size:12px;color:var(--text2);margin-top:2px;}
+.topbar-right{display:flex;align-items:center;gap:9px;}
+.search-box{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:8px 12px;transition:border .15s;}
+.search-box:focus-within{border-color:var(--pink);}
+.search-box input{border:none;background:transparent;font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
+.search-box input::placeholder{color:var(--text3);}
+.btn-primary{padding:9px 18px;background:var(--pink);border:none;border-radius:var(--radius);color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap;}
+.btn-primary:hover{background:var(--pink-dark);}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
+
+/* CONTENT */
+.content{padding:22px 28px;flex:1;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;}
+.stat-label{font-size:11px;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.06em;font-weight:500;}
+.stat-val{font-size:28px;font-weight:700;color:var(--white);}
+.stat-val.pink{color:var(--pink);}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+
+/* TABLE */
+.table-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:18px;overflow:hidden;}
+.tc-head{padding:14px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--bg3);}
+.tc-title{font-size:14px;font-weight:600;color:var(--white);}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;}
+.fb{padding:5px 10px;border-radius:7px;border:1px solid var(--border2);background:transparent;font-family:'Inter',sans-serif;font-size:12px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.fb:hover{background:var(--bg4);color:var(--text);}
+.fb.active{background:var(--pink-light);color:var(--pink);border-color:var(--pink-border);}
+table{width:100%;border-collapse:collapse;}
+thead tr{background:var(--bg3);}
+th{font-size:11px;font-weight:600;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+td{font-size:13px;padding:11px 14px;border-bottom:1px solid var(--bg3);vertical-align:middle;color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tbody tr{transition:background .1s;cursor:pointer;}
+tbody tr:hover{background:var(--bg3);}
+.sop-tc{display:flex;align-items:center;gap:8px;font-weight:500;color:var(--white);}
+.doc-ic{width:22px;height:22px;background:var(--pink-light);border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--pink);}
+.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;white-space:nowrap;}
+.b-done{background:var(--green-bg);color:var(--green);}
+.b-review{background:var(--amber-bg);color:var(--amber);}
+.b-pending{background:var(--pink-light);color:var(--pink);}
+.b-draft{background:var(--bg4);color:var(--text3);}
+.pp{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:999px;font-size:11px;font-weight:500;}
+.p-h{background:var(--red-bg);color:var(--red);}
+.p-m{background:var(--amber-bg);color:var(--amber);}
+.p-l{background:var(--green-bg);color:var(--green);}
+.dept-tag{display:inline-block;padding:2px 8px;border-radius:6px;font-size:11px;background:var(--bg4);color:var(--text2);border:1px solid var(--border2);}
+.ac{display:flex;gap:4px;}
+.ib{width:28px;height:28px;border-radius:7px;border:1px solid var(--border2);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;transition:all .15s;color:var(--text2);}
+.ib:hover{background:var(--bg4);color:var(--text);border-color:var(--border3);}
+.ib.del:hover{background:var(--red-bg);border-color:rgba(224,85,85,.3);color:var(--red);}
+
+/* BOTTOM */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.bc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px;}
+.bc-title{font-size:12px;font-weight:600;color:var(--text);margin-bottom:12px;text-transform:uppercase;letter-spacing:.05em;}
+.act-btn{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);font-family:'Inter',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;width:100%;margin-bottom:6px;text-align:left;}
+.act-btn:hover{background:var(--bg4);color:var(--text);border-color:var(--border3);}
+.al-item{padding:9px 0;border-bottom:1px solid var(--border);}
+.al-item:last-child{border-bottom:none;}
+.al-name{font-size:13px;color:var(--text);}
+.al-time{font-size:11px;color:var(--text3);margin-top:2px;}
+.al-user{font-size:11px;color:var(--pink);margin-top:2px;font-weight:500;}
+
+/* ── EDITOR ── */
+#editor-screen{display:none;min-height:100vh;flex-direction:column;}
+.ed-topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:20;flex-wrap:wrap;}
+.ed-back{display:flex;align-items:center;gap:6px;padding:7px 12px;border-radius:var(--radius);border:1px solid var(--border2);background:transparent;font-family:'Inter',sans-serif;font-size:13px;cursor:pointer;color:var(--text2);transition:all .15s;}
+.ed-back:hover{background:var(--bg4);color:var(--text);}
+.ed-title{flex:1;border:none;font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);outline:none;background:transparent;min-width:150px;}
+.ed-title::placeholder{color:var(--text3);}
+.ed-sel{padding:7px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);font-family:'Inter',sans-serif;font-size:12px;color:var(--text2);outline:none;transition:border .15s;}
+.ed-sel:focus{border-color:var(--pink);}
+.as-txt{font-size:11px;color:var(--text3);}
+.btn-save{padding:8px 18px;background:var(--pink);border:none;border-radius:var(--radius);color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-save:hover{background:var(--pink-dark);}
+.ed-toolbar{background:var(--bg3);border-bottom:1px solid var(--border);padding:7px 20px;display:flex;align-items:center;gap:3px;flex-wrap:wrap;}
+.tb{min-width:28px;height:28px;border-radius:6px;border:1px solid transparent;background:transparent;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--text2);padding:0 6px;font-family:'Inter',sans-serif;}
+.tb:hover{background:var(--bg4);border-color:var(--border2);color:var(--text);}
+.tb-sep{width:1px;height:20px;background:var(--border2);margin:0 3px;}
+.tb-sel{padding:5px 8px;border-radius:6px;border:1px solid var(--border2);background:var(--bg4);font-family:'Inter',sans-serif;font-size:12px;outline:none;color:var(--text2);}
+.tb-ai{background:var(--pink-light);border:1px solid var(--pink-border);color:var(--pink);padding:0 12px;font-size:12px;font-weight:500;height:28px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.tb-ai:hover{background:var(--pink);color:var(--white);}
+.ed-body{display:flex;flex:1;}
+.ed-page-area{flex:1;background:#0d0d0d;padding:40px 24px;display:flex;justify-content:center;overflow-y:auto;}
+.doc-page{background:var(--white);width:100%;max-width:760px;min-height:960px;border-radius:2px;box-shadow:0 4px 40px rgba(0,0,0,.7);padding:64px 72px;}
+#doc-ed{min-height:800px;outline:none;font-family:'Lora',Georgia,serif;font-size:16px;line-height:1.9;color:#1a1a2e;}
+#doc-ed:empty:before{content:"Start writing your SOP...";color:#ccc;pointer-events:none;}
+#doc-ed h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:700;margin:24px 0 12px;line-height:1.3;color:#0a0a0a;}
+#doc-ed h2{font-family:'Playfair Display',serif;font-size:21px;font-weight:600;margin:20px 0 10px;line-height:1.3;color:#993556;}
+#doc-ed h3{font-family:'Inter',sans-serif;font-size:15px;font-weight:600;margin:16px 0 8px;color:#1a1a2e;}
+#doc-ed ul,#doc-ed ol{padding-left:28px;margin:10px 0;}
+#doc-ed li{margin:5px 0;}
+#doc-ed blockquote{border-left:3px solid #d4537e;padding:10px 18px;background:#fdf6f9;border-radius:0 8px 8px 0;margin:14px 0;font-style:italic;color:#555;}
+#doc-ed table{width:100%;border-collapse:collapse;margin:14px 0;}
+#doc-ed td,#doc-ed th{border:1px solid #e0e0e0;padding:8px 12px;font-size:14px;}
+#doc-ed th{background:#f8f8f8;font-weight:600;font-family:'Inter',sans-serif;font-size:12px;}
+#doc-ed hr{border:none;border-top:2px solid #eee;margin:20px 0;}
+.doc-footer{background:var(--bg2);border-top:1px solid var(--border);padding:7px 72px;display:flex;gap:20px;font-size:11px;color:var(--text3);}
+
+/* AI PANEL */
+.ai-panel{width:280px;flex-shrink:0;background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.ai-hdr{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3);}
+.ai-title{font-size:13px;font-weight:600;color:var(--white);flex:1;}
+.ai-badge{font-size:10px;background:var(--pink);color:var(--white);padding:2px 7px;border-radius:999px;font-weight:600;}
+.ai-tabs{display:flex;border-bottom:1px solid var(--border);}
+.ai-tab{flex:1;padding:9px 4px;border:none;background:transparent;font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;color:var(--text3);border-bottom:2px solid transparent;transition:all .15s;}
+.ai-tab.active{color:var(--pink);border-bottom-color:var(--pink);}
+.ai-tab:hover{background:var(--bg3);}
+.ai-content{flex:1;overflow-y:auto;padding:12px;}
+.ai-sug{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;margin-bottom:10px;}
+.ai-sug-lbl{font-size:10px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.ai-sug-txt{font-size:12px;line-height:1.6;color:var(--text2);margin-bottom:8px;}
+.ai-apply{font-size:11px;padding:4px 10px;background:var(--pink);border:none;border-radius:6px;color:var(--white);cursor:pointer;font-weight:500;}
+.ai-apply:hover{background:var(--pink-dark);}
+.gram-item{display:flex;gap:8px;padding:9px;border-radius:8px;margin-bottom:8px;font-size:12px;line-height:1.5;}
+.gram-item.error{background:var(--red-bg);border:1px solid rgba(224,85,85,.2);}
+.gram-item.warn{background:var(--amber-bg);border:1px solid rgba(232,160,32,.2);}
+.gram-item.good{background:var(--green-bg);border:1px solid rgba(76,175,118,.2);}
+.gram-icon{font-size:14px;flex-shrink:0;}
+.gram-txt{flex:1;color:var(--text2);}
+.ai-pa{padding:10px 12px;border-top:1px solid var(--border);}
+.ai-ta{width:100%;padding:8px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);font-family:'Inter',sans-serif;font-size:12px;color:var(--text);outline:none;resize:none;min-height:58px;line-height:1.5;}
+.ai-ta:focus{border-color:var(--pink);}
+.ai-send{width:100%;margin-top:7px;padding:8px;background:var(--pink);border:none;border-radius:var(--radius);color:var(--white);font-family:'Inter',sans-serif;font-size:12px;cursor:pointer;font-weight:500;}
+.ai-send:hover{background:var(--pink-dark);}
+.ai-load{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);padding:10px 0;}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--pink);animation:bop .8s infinite;}
+.dot:nth-child(2){animation-delay:.2s;}
+.dot:nth-child(3){animation-delay:.4s;}
+@keyframes bop{0%,80%,100%{transform:scale(0);}40%{transform:scale(1);}}
+.ai-resp{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius);padding:12px;font-size:12px;line-height:1.7;color:var(--text2);margin-bottom:10px;}
+.ai-resp-lbl{font-size:10px;font-weight:600;color:var(--pink);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(6px);z-index:200;align-items:center;justify-content:center;}
+.mo.open{display:flex;}
+.md{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.8);animation:su .2s ease;}
+.md.wide{max-width:560px;}
+@keyframes su{from{transform:translateY(14px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.md-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.md-title{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);}
+.md-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border2);background:transparent;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--text2);}
+.md-close:hover{background:var(--bg4);}
+.fl{margin-bottom:14px;}
+.fl label{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.05em;}
+.fi,.fs{width:100%;padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);font-family:'Inter',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border .15s;}
+.fi:focus,.fs:focus{border-color:var(--pink);}
+.fi::placeholder{color:var(--text3);}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.md-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;}
+.btn-sec{padding:9px 16px;background:transparent;border:1px solid var(--border2);border-radius:var(--radius);font-family:'Inter',sans-serif;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;}
+.btn-sec:hover{background:var(--bg4);color:var(--text);}
+
+/* TEMPLATES */
+.tpl-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:6px;}
+.tpl{padding:14px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--bg3);cursor:pointer;transition:all .15s;text-align:left;width:100%;}
+.tpl:hover{background:var(--bg4);border-color:var(--border3);}
+.tpl-icon{font-size:20px;margin-bottom:6px;}
+.tpl-name{font-size:13px;font-weight:600;color:var(--white);}
+.tpl-desc{font-size:11px;color:var(--text3);margin-top:2px;}
+
+/* TEAM MANAGER */
+.team-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);margin-bottom:8px;}
+.team-avatar{width:32px;height:32px;border-radius:50%;background:var(--pink);display:flex;align-items:center;justify-content:center;color:var(--white);font-size:12px;font-weight:700;flex-shrink:0;}
+.team-info{flex:1;}
+.team-name{font-size:13px;font-weight:500;color:var(--white);}
+.team-email{font-size:11px;color:var(--text3);}
+.team-role{font-size:11px;padding:2px 8px;border-radius:999px;font-weight:500;}
+.role-admin{background:var(--pink-light);color:var(--pink);}
+.role-member{background:var(--bg4);color:var(--text3);}
+
+/* AUDIT LOG */
+.audit-item{padding:10px 12px;border-radius:var(--radius);background:var(--bg3);border:1px solid var(--border2);margin-bottom:8px;}
+.audit-action{font-size:13px;color:var(--text);font-weight:500;}
+.audit-meta{display:flex;gap:12px;margin-top:4px;}
+.audit-user{font-size:11px;color:var(--pink);font-weight:500;}
+.audit-time{font-size:11px;color:var(--text3);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg3);border:1px solid var(--border3);color:var(--text);padding:11px 16px;border-radius:12px;font-size:13px;font-weight:500;z-index:9999;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;box-shadow:var(--shadow);}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:2000;flex-direction:column;gap:14px;}
+.loading-logo{font-family:'Playfair Display',serif;font-size:24px;color:var(--white);}
+.loading-logo span{color:var(--pink);}
+.loading-bar{width:200px;height:3px;background:var(--bg4);border-radius:999px;overflow:hidden;}
+.loading-fill{height:100%;background:var(--pink);border-radius:999px;animation:lf 1.4s ease infinite;}
+@keyframes lf{0%{width:0;margin-left:0;}50%{width:60%;margin-left:20%;}100%{width:0;margin-left:100%;}  }
+
+/* EMPTY */
+.empty{text-align:center;padding:52px 20px;color:var(--text3);}
+
+/* INVITE PENDING */
+.invite-box{background:var(--amber-bg);border:1px solid rgba(232,160,32,.25);border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;font-size:13px;color:var(--amber);display:none;}
+
+@media(max-width:1100px){.ai-panel{display:none;}}
+@media(max-width:900px){.sidebar{transform:translateX(-100%);}.main{margin-left:0;}.stats-grid{grid-template-columns:1fr 1fr;}.bottom-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.stats-grid{grid-template-columns:1fr;}.doc-page{padding:30px 22px;}.fr{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="loading-logo">SOP<span> Space</span></div>
+  <div class="loading-bar"><div class="loading-fill"></div></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen" style="display:none;">
+  <div class="auth-card">
+    <div class="auth-logo">SOP<span> Space</span></div>
+    <div class="auth-sub">Professional SOP management for your team</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-signin" onclick="switchAuthTab('signin')">Sign In</button>
+      <button class="auth-tab" id="tab-signup" onclick="switchAuthTab('signup')">Create Account</button>
+    </div>
+    <div id="signin-form">
+      <input class="af" type="email" id="si-email" placeholder="Email address" autocomplete="email"/>
+      <input class="af" type="password" id="si-pass" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')doSignIn()"/>
+      <button class="auth-btn" id="signin-btn" onclick="doSignIn()">Sign In</button>
+      <button type="button" class="forgot-btn" onclick="showForgotForm()">Forgot password?</button>
+    </div>
+    <div id="forgot-form" style="display:none;">
+      <p style="font-size:12px;color:var(--text3);margin-bottom:14px;line-height:1.6;">Enter your email and we will send you a reset link.</p>
+      <input class="af" type="email" id="fp-email" placeholder="Email address" autocomplete="email" onkeydown="if(event.key==='Enter')doForgotPassword()"/>
+      <button class="auth-btn" id="forgot-btn" onclick="doForgotPassword()">Send Reset Link</button>
+      <button type="button" class="forgot-btn" onclick="hideForgotForm()">&#8592; Back to Sign In</button>
+    </div>
+    <div id="signup-form" style="display:none;">
+      <input class="af" type="text" id="su-name" placeholder="Your name" autocomplete="name"/>
+      <input class="af" type="email" id="su-email" placeholder="Email address" autocomplete="email"/>
+      <input class="af" type="password" id="su-pass" placeholder="Password (min 6 characters)" autocomplete="new-password" onkeydown="if(event.key==='Enter')doSignUp()"/>
+      <button class="auth-btn" id="signup-btn" onclick="doSignUp()">Create Account</button>
+    </div>
+    <div class="auth-msg" id="auth-msg"></div>
+    <div class="auth-hint" id="auth-hint">Sign in with your team credentials.<br>Ask your admin to invite you if you don't have an account.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+<!-- DASHBOARD -->
+<div class="layout" id="dashboard-screen">
+  <aside class="sidebar">
+    <div class="s-logo">
+      <div class="s-logo-title">SOP<span> Space</span></div>
+      <div class="s-logo-sub">Team workspace</div>
+    </div>
+    <nav>
+      <button class="ni active" id="nav-all" onclick="filterDept('All',this)"><span class="ni-icon">&#9776;</span>All SOPs<span class="ni-count" id="c-all">0</span></button>
+      <button class="ni" onclick="filterDept('Operations',this)"><span class="ni-icon">&#9881;</span>Operations<span class="ni-count" id="c-ops">0</span></button>
+      <button class="ni" onclick="filterDept('HR',this)"><span class="ni-icon">&#128101;</span>HR<span class="ni-count" id="c-hr">0</span></button>
+      <button class="ni" onclick="filterDept('Marketing',this)"><span class="ni-icon">&#128200;</span>Marketing<span class="ni-count" id="c-mkt">0</span></button>
+      <button class="ni" onclick="filterDept('Sales',this)"><span class="ni-icon">&#128176;</span>Sales<span class="ni-count" id="c-sales">0</span></button>
+      <button class="ni" onclick="filterDept('Finance',this)"><span class="ni-icon">&#128202;</span>Finance<span class="ni-count" id="c-fin">0</span></button>
+    </nav>
+    <div class="s-divider"></div>
+    <nav>
+      <button class="ni" onclick="openAuditLog()"><span class="ni-icon">&#128203;</span>Audit Log</button>
+      <button class="ni" onclick="openTeamManager()"><span class="ni-icon">&#128101;</span>Team Members</button>
+      <button class="ni" onclick="openTemplateModal()"><span class="ni-icon">&#128196;</span>Templates</button>
+      <button class="ni" onclick="exportSOPs()"><span class="ni-icon">&#8659;</span>Export Backup</button>
+    </nav>
+    <div class="s-bottom">
+      <div class="user-chip">
+        <div class="u-avatar" id="u-av">?</div>
+        <div><div class="u-name" id="u-name">Loading...</div><div class="u-role" id="u-role">member</div></div>
+      </div>
+      <button class="logout-btn" onclick="doSignOut()">&#8594; Sign out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-left"><h1 id="page-title">Dashboard</h1><p id="page-sub">All standard operating procedures in one place.</p></div>
+      <div class="topbar-right">
+        <div class="search-box"><span style="color:var(--text3);font-size:12px;">&#9906;</span><input type="text" id="search-input" placeholder="Search SOPs..." oninput="handleSearch()"/></div>
+        <button class="btn-primary" onclick="openNewSOP()">+ New SOP</button>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total SOPs</div><div class="stat-val pink" id="st-total">0</div><div class="stat-sub">all departments</div></div>
+        <div class="stat-card"><div class="stat-label">Completed</div><div class="stat-val" id="st-done">0</div><div class="stat-sub">fully documented</div></div>
+        <div class="stat-card"><div class="stat-label">In Review</div><div class="stat-val" id="st-review">0</div><div class="stat-sub">awaiting approval</div></div>
+        <div class="stat-card"><div class="stat-label">High Priority</div><div class="stat-val" id="st-high">0</div><div class="stat-sub">urgent attention</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="tc-head">
+          <div class="tc-title">Knowledge Base</div>
+          <div class="filter-row">
+            <button class="fb active" onclick="filterStatus('All',this)">All</button>
+            <button class="fb" onclick="filterStatus('Completed',this)">Completed</button>
+            <button class="fb" onclick="filterStatus('In Review',this)">In Review</button>
+            <button class="fb" onclick="filterStatus('Pending',this)">Pending</button>
+            <button class="fb" onclick="filterStatus('Draft',this)">Draft</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Title</th><th>Dept</th><th>Owner</th><th>Priority</th><th>Status</th><th>Last Edited By</th><th>Updated</th><th>Actions</th></tr></thead>
+            <tbody id="sop-tbody"></tbody>
+          </table>
+          <div id="empty-state" class="empty" style="display:none;">
+            <div style="font-size:32px;margin-bottom:10px;opacity:.3;">&#128196;</div>
+            <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px;">No SOPs yet</div>
+            <div style="font-size:13px;">Click &ldquo;+ New SOP&rdquo; to get started.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="bc">
+          <div class="bc-title">Quick Actions</div>
+          <button class="act-btn" onclick="openNewSOP()">+ Create New SOP</button>
+          <button class="act-btn" onclick="openTemplateModal()">&#128203; Start from Template</button>
+          <button class="act-btn" onclick="openAuditLog()">&#128203; View Audit Log</button>
+          <button class="act-btn" onclick="openTeamManager()">&#128101; Manage Team Members</button>
+          <button class="act-btn" onclick="exportSOPs()">&#8659; Export All SOPs (JSON)</button>
+        </div>
+        <div class="bc">
+          <div class="bc-title">Recent Activity</div>
+          <div id="activity-list"><div class="al-item"><div class="al-name" style="color:var(--text3);">Loading activity...</div></div></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- EDITOR -->
+<div id="editor-screen">
+  <div class="ed-topbar">
+    <button class="ed-back" onclick="backToDashboard()">&#8592; Back</button>
+    <input class="ed-title" id="ed-title" placeholder="Untitled SOP"/>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      <select id="ed-dept" class="ed-sel"><option value="">Department</option><option>Operations</option><option>HR</option><option>Marketing</option><option>Sales</option><option>Finance</option></select>
+      <select id="ed-owner" class="ed-sel"><option value="">Owner</option></select>
+      <select id="ed-status" class="ed-sel"><option value="Draft">Draft</option><option value="In Review">In Review</option><option value="Completed">Completed</option><option value="Pending">Pending</option></select>
+      <select id="ed-priority" class="ed-sel"><option value="Medium">Medium</option><option value="High">High Priority</option><option value="Low">Low Priority</option></select>
+    </div>
+    <span class="as-txt" id="as-txt">All changes saved</span>
+    <button class="btn-save" onclick="saveDoc()">Save</button>
+  </div>
+  <div class="ed-toolbar">
+    <select class="tb-sel" onchange="formatBlock(this.value);this.value=''">
+      <option value="">Style</option><option value="h1">Heading 1</option><option value="h2">Heading 2</option><option value="h3">Heading 3</option><option value="blockquote">Quote</option><option value="p">Paragraph</option>
+    </select>
+    <div class="tb-sep"></div>
+    <button class="tb" onclick="fmt('bold')"><b>B</b></button>
+    <button class="tb" onclick="fmt('italic')"><i>I</i></button>
+    <button class="tb" onclick="fmt('underline')"><u>U</u></button>
+    <button class="tb" onclick="fmt('strikeThrough')"><s>S</s></button>
+    <div class="tb-sep"></div>
+    <button class="tb" onclick="fmt('insertUnorderedList')">&#8226;&#8801;</button>
+    <button class="tb" onclick="fmt('insertOrderedList')">1.&#8801;</button>
+    <div class="tb-sep"></div>
+    <button class="tb" onclick="insTable()">&#8862;</button>
+    <button class="tb" onclick="insDivider()">&#8212;</button>
+    <button class="tb" onclick="insCheck()">&#9745;</button>
+    <div class="tb-sep"></div>
+    <button class="tb" onclick="fmt('undo')">&#8617;</button>
+    <button class="tb" onclick="fmt('redo')">&#8618;</button>
+    <div class="tb-sep"></div>
+    <button class="tb-ai" onclick="runGrammar()">Check Writing</button>
+    <button class="tb-ai" style="margin-left:4px;" onclick="showAiTab('ask')">AI Assist</button>
+  </div>
+  <div class="ed-body">
+    <div class="ed-page-area">
+      <div class="doc-page">
+        <div id="doc-ed" contenteditable="true" spellcheck="true" oninput="onDocInput()"></div>
+      </div>
+    </div>
+    <div class="ai-panel">
+      <div class="ai-hdr"><div class="ai-title">AI Writing Assistant</div><span class="ai-badge">Live</span></div>
+      <div class="ai-tabs">
+        <button class="ai-tab active" id="tab-gram" onclick="switchAiTab('grammar',this)">Grammar</button>
+        <button class="ai-tab" id="tab-sug" onclick="switchAiTab('suggest',this)">Suggestions</button>
+        <button class="ai-tab" id="tab-ask" onclick="switchAiTab('ask',this)">Ask AI</button>
+      </div>
+      <div class="ai-content" id="ai-content">
+        <div style="font-size:12px;color:var(--text3);text-align:center;padding:24px 12px;line-height:1.7;">Click <strong style="color:var(--text);">Check Writing</strong> to scan your document for grammar improvements.</div>
+      </div>
+      <div class="ai-pa" id="ai-pa" style="display:none;">
+        <textarea class="ai-ta" id="ai-ta" placeholder="Ask anything... e.g. 'Make this more professional'"></textarea>
+        <button class="ai-send" onclick="sendAiPrompt()">Ask AI</button>
+      </div>
+    </div>
+  </div>
+  <div class="doc-footer">
+    <span>Words: <strong id="wc">0</strong></span>
+    <span>Characters: <strong id="cc">0</strong></span>
+    <span style="margin-left:auto;" id="last-saved"></span>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL: NEW SOP -->
+<div class="mo" id="sop-modal">
+  <div class="md">
+    <div class="md-hdr"><div class="md-title">New SOP</div><button class="md-close" onclick="closeMo('sop-modal')">&#215;</button></div>
+    <div class="fl"><label>Title *</label><input class="fi" id="f-title" placeholder="e.g. Client Onboarding"/></div>
+    <div class="fr">
+      <div class="fl"><label>Department *</label><select class="fs" id="f-dept"><option value="">Select</option><option>Operations</option><option>HR</option><option>Marketing</option><option>Sales</option><option>Finance</option></select></div>
+      <div class="fl"><label>Owner *</label><input class="fi" id="f-owner" placeholder="e.g. Maria"/></div>
+    </div>
+    <div class="fr">
+      <div class="fl"><label>Status</label><select class="fs" id="f-status"><option value="Draft">Draft</option><option value="In Review">In Review</option><option value="Completed">Completed</option><option value="Pending">Pending</option></select></div>
+      <div class="fl"><label>Priority</label><select class="fs" id="f-priority"><option value="Medium">Medium</option><option value="High">High</option><option value="Low">Low</option></select></div>
+    </div>
+    <div class="fl"><label>Tags (comma separated)</label><input class="fi" id="f-tags" placeholder="e.g. onboarding, client"/></div>
+    <div class="md-footer"><button class="btn-sec" onclick="closeMo('sop-modal')">Cancel</button><button class="btn-primary" onclick="saveSopMeta()">Open Editor &rarr;</button></div>
+  </div>
+</div>
+
+<!-- MODAL: TEMPLATES -->
+<div class="mo" id="tpl-modal">
+  <div class="md wide">
+    <div class="md-hdr"><div class="md-title">Templates</div><button class="md-close" onclick="closeMo('tpl-modal')">&#215;</button></div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:18px;">Start with a pre-built SOP and customize it.</p>
+    <div class="tpl-grid" id="tpl-grid"></div>
+    <div class="md-footer"><button class="btn-sec" onclick="closeMo('tpl-modal')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- MODAL: AUDIT LOG -->
+<div class="mo" id="audit-modal">
+  <div class="md wide">
+    <div class="md-hdr"><div class="md-title">Audit Log</div><button class="md-close" onclick="closeMo('audit-modal')">&#215;</button></div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Every action taken by every team member — in real time.</p>
+    <div id="audit-list"><div class="al-item"><div class="al-name" style="color:var(--text3);">Loading...</div></div></div>
+    <div class="md-footer"><button class="btn-sec" onclick="closeMo('audit-modal')">Close</button></div>
+  </div>
+</div>
+
+<!-- MODAL: TEAM MANAGER -->
+<div class="mo" id="team-modal">
+  <div class="md wide">
+    <div class="md-hdr"><div class="md-title">Team Members</div><button class="md-close" onclick="closeMo('team-modal')">&#215;</button></div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:16px;">Everyone who has signed up using your Supabase project.</p>
+    <div id="team-list"><div class="al-item"><div class="al-name" style="color:var(--text3);">Loading...</div></div></div>
+    <div class="md-footer"><button class="btn-sec" onclick="closeMo('team-modal')">Close</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// SUPABASE INIT
+// ═══════════════════════════════════════════════
+const SUPA_URL = 'https://sekmrtddnyyfvddhicky.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNla21ydGRkbnl5ZnZkZGhpY2t5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMzA2NjksImV4cCI6MjA5NDkwNjY2OX0.L4iRVU_ljhRGVybq4V_7WlVyWLhe4LtFj5x4z-2TYyk';
+const CLAUDE_KEY = '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';
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentUser = null;
+let currentProfile = null;
+let allSOPs = [];
+let currentDept = 'All', currentStatus = 'All', currentSearch = '';
+let currentEditorId = null, autosaveTimer = null;
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+async function init() {
+  const { data: { session } } = await db.auth.getSession();
+  document.getElementById('loading').style.display = 'none';
+  if (session) {
+    currentUser = session.user;
+    await loadProfile();
+    showApp();
+  } else {
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+}
+
+async function loadProfile() {
+  const { data } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+  currentProfile = data;
+  if (!data) {
+    await db.from('profiles').insert({ id: currentUser.id, username: currentUser.email.split('@')[0], role: 'member' });
+    const { data: d2 } = await db.from('profiles').select('*').eq('id', currentUser.id).single();
+    currentProfile = d2;
+  }
+}
+
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  const name = currentProfile?.username || currentUser.email;
+  const role = currentProfile?.role || 'member';
+  document.getElementById('u-name').textContent = name;
+  document.getElementById('u-role').textContent = role;
+  document.getElementById('u-av').textContent = name.charAt(0).toUpperCase();
+  populateOwnerSel();
+  loadSOPs();
+  loadActivity();
+  subscribeToChanges();
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function switchAuthTab(tab) {
+  document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+  document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+  document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+  document.getElementById('auth-msg').className = 'auth-msg';
+  document.getElementById('auth-hint').textContent = tab === 'signin'
+    ? 'Sign in with your team credentials.'
+    : 'Create an account to join the workspace.';
+}
+
+async function doSignIn() {
+  const email = document.getElementById('si-email').value.trim();
+  const pass  = document.getElementById('si-pass').value;
+  const btn   = document.getElementById('signin-btn');
+  const msg   = document.getElementById('auth-msg');
+  if (!email || !pass) { showAuthMsg('Please fill in all fields.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  const { data, error } = await db.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) { showAuthMsg(error.message, 'error'); return; }
+  currentUser = data.user;
+  await loadProfile();
+  showApp();
+}
+
+async function doSignUp() {
+  const name  = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const pass  = document.getElementById('su-pass').value;
+  const btn   = document.getElementById('signup-btn');
+  if (!name || !email || !pass) { showAuthMsg('Please fill in all fields.', 'error'); return; }
+  if (pass.length < 6) { showAuthMsg('Password must be at least 6 characters.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  const { data, error } = await db.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+  btn.disabled = false; btn.textContent = 'Create Account';
+  if (error) { showAuthMsg(error.message, 'error'); return; }
+  if (data.user && !data.session) {
+    showAuthMsg('Account created! Check your email to confirm, then sign in.', 'success');
+  } else if (data.session) {
+    currentUser = data.user;
+    await db.from('profiles').upsert({ id: data.user.id, username: name, role: 'member' });
+    await loadProfile();
+    showApp();
+  }
+}
+
+async function doSignOut() {
+  await db.auth.signOut();
+  currentUser = null; currentProfile = null; allSOPs = [];
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('auth-screen').style.display = 'flex';
+  document.getElementById('si-pass').value = '';
+}
+
+function showAuthMsg(msg, type) {
+  const el = document.getElementById('auth-msg');
+  el.textContent = msg; el.className = 'auth-msg ' + type;
+}
+
+// ═══════════════════════════════════════════════
+// REAL-TIME SUBSCRIPTION
+// ═══════════════════════════════════════════════
+function subscribeToChanges() {
+  db.channel('sops-channel')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'sops' }, () => { loadSOPs(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'activity_log' }, () => { loadActivity(); })
+    .subscribe();
+}
+
+// ═══════════════════════════════════════════════
+// LOAD DATA
+// ═══════════════════════════════════════════════
+async function loadSOPs() {
+  const { data, error } = await db.from('sops').select('*').order('updated_at', { ascending: false });
+  if (error) { showToast('Error loading SOPs: ' + error.message); return; }
+  allSOPs = data || [];
+  render();
+}
+
+async function loadActivity() {
+  const { data } = await db.from('activity_log').select('*').order('created_at', { ascending: false }).limit(6);
+  const el = document.getElementById('activity-list');
+  if (!data || !data.length) { el.innerHTML = '<div class="al-item"><div class="al-name" style="color:var(--text3);">No activity yet.</div></div>'; return; }
+  el.innerHTML = data.map(a => `
+    <div class="al-item">
+      <div class="al-name">${esc(a.action)}</div>
+      <div class="audit-meta">
+        <span class="al-user">${esc(a.username || 'Unknown')}</span>
+        <span class="al-time">${timeAgo(a.created_at)}</span>
+      </div>
+    </div>`).join('');
+}
+
+async function logActivity(action, sopTitle) {
+  const name = currentProfile?.username || currentUser?.email || 'Unknown';
+  await db.from('activity_log').insert({ user_id: currentUser.id, username: name, action, sop_title: sopTitle || '' });
+}
+
+// ═══════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════
+function render() {
+  updateStats();
+  updateCounts();
+  renderTable(getFiltered());
+}
+
+function updateStats() {
+  document.getElementById('st-total').textContent  = allSOPs.length;
+  document.getElementById('st-done').textContent   = allSOPs.filter(s => s.status === 'Completed').length;
+  document.getElementById('st-review').textContent = allSOPs.filter(s => s.status === 'In Review').length;
+  document.getElementById('st-high').textContent   = allSOPs.filter(s => s.priority === 'High').length;
+}
+
+function updateCounts() {
+  const map = { all: allSOPs.length, ops: 0, hr: 0, mkt: 0, sales: 0, fin: 0 };
+  allSOPs.forEach(s => {
+    if (s.dept === 'Operations') map.ops++;
+    else if (s.dept === 'HR') map.hr++;
+    else if (s.dept === 'Marketing') map.mkt++;
+    else if (s.dept === 'Sales') map.sales++;
+    else if (s.dept === 'Finance') map.fin++;
+  });
+  Object.keys(map).forEach(k => { const el = document.getElementById('c-' + k); if (el) el.textContent = map[k]; });
+}
+
+function getFiltered() {
+  return allSOPs.filter(s => {
+    const md = currentDept === 'All' || s.dept === currentDept;
+    const ms = currentStatus === 'All' || s.status === currentStatus;
+    const q  = currentSearch.toLowerCase();
+    const mq = !q || (s.title||'').toLowerCase().includes(q) || (s.owner||'').toLowerCase().includes(q) || (s.dept||'').toLowerCase().includes(q);
+    return md && ms && mq;
+  });
+}
+
+function timeAgo(ts) {
+  const d = Date.now() - new Date(ts).getTime(), m = Math.floor(d / 60000);
+  if (m < 1) return 'Just now';
+  if (m < 60) return m + 'm ago';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h ago';
+  if (Math.floor(h / 24) === 1) return 'Yesterday';
+  return Math.floor(h / 24) + 'd ago';
+}
+
+function badgeCls(s) { return s === 'Completed' ? 'b-done' : s === 'In Review' ? 'b-review' : s === 'Pending' ? 'b-pending' : 'b-draft'; }
+function prioCls(p)  { return p === 'High' ? 'p-h' : p === 'Low' ? 'p-l' : 'p-m'; }
+function esc(t)      { return (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function renderTable(filtered) {
+  const tbody = document.getElementById('sop-tbody');
+  const empty = document.getElementById('empty-state');
+  if (!filtered.length) { tbody.innerHTML = ''; empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  tbody.innerHTML = filtered.map(s => `
+    <tr onclick="openEditor('${s.id}')">
+      <td><div class="sop-tc"><div class="doc-ic">&#128196;</div>${esc(s.title||'Untitled')}</div></td>
+      <td><span class="dept-tag">${esc(s.dept||'')}</span></td>
+      <td style="color:var(--text2)">${esc(s.owner||'')}</td>
+      <td><span class="pp ${prioCls(s.priority||'Medium')}">${s.priority||'Medium'}</span></td>
+      <td><span class="badge ${badgeCls(s.status)}">${s.status}</span></td>
+      <td style="color:var(--pink);font-size:12px;">${esc(s.updated_by_name||'')}</td>
+      <td style="color:var(--text3)">${timeAgo(s.updated_at)}</td>
+      <td onclick="event.stopPropagation()"><div class="ac">
+        <button class="ib" onclick="openEditor('${s.id}')">&#9998;</button>
+        <button class="ib del" onclick="deleteSOP('${s.id}','${esc(s.title||'')}')">&#128465;</button>
+      </div></td>
+    </tr>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════════════
+function filterDept(dept, btn) {
+  currentDept = dept;
+  document.querySelectorAll('.ni').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('page-title').textContent = dept === 'All' ? 'Dashboard' : dept + ' SOPs';
+  renderTable(getFiltered());
+}
+
+function filterStatus(status, btn) {
+  currentStatus = status;
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTable(getFiltered());
+}
+
+function handleSearch() { currentSearch = document.getElementById('search-input').value; renderTable(getFiltered()); }
+
+// ═══════════════════════════════════════════════
+// NEW SOP
+// ═══════════════════════════════════════════════
+function openNewSOP() {
+  document.getElementById('f-title').value = '';
+  document.getElementById('f-dept').value  = '';
+  document.getElementById('f-owner').value = '';
+  document.getElementById('f-status').value   = 'Draft';
+  document.getElementById('f-priority').value = 'Medium';
+  document.getElementById('f-tags').value = '';
+  document.getElementById('sop-modal').classList.add('open');
+  setTimeout(() => document.getElementById('f-title').focus(), 100);
+}
+
+async function saveSopMeta() {
+  const title    = document.getElementById('f-title').value.trim();
+  const dept     = document.getElementById('f-dept').value;
+  const owner    = document.getElementById('f-owner').value.trim();
+  const status   = document.getElementById('f-status').value;
+  const priority = document.getElementById('f-priority').value;
+  const tags     = document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+  if (!title || !dept || !owner) { showToast('Please fill in Title, Department, and Owner.'); return; }
+  const name = currentProfile?.username || currentUser.email;
+  const { data, error } = await db.from('sops').insert({
+    title, dept, owner, status, priority, tags, body: '',
+    created_by: currentUser.id, updated_by: currentUser.id,
+    updated_by_name: name, updated_at: new Date().toISOString()
+  }).select().single();
+  if (error) { showToast('Error: ' + error.message); return; }
+  await logActivity(name + ' created "' + title + '"', title);
+  closeMo('sop-modal');
+  openEditor(data.id);
+}
+
+async function deleteSOP(id, title) {
+  if (!confirm('Delete "' + title + '"? This cannot be undone.')) return;
+  const { error } = await db.from('sops').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message); return; }
+  const name = currentProfile?.username || currentUser.email;
+  await logActivity(name + ' deleted "' + title + '"', title);
+  showToast('SOP deleted.');
+  loadSOPs();
+}
+
+// ═══════════════════════════════════════════════
+// EDITOR
+// ═══════════════════════════════════════════════
+async function openEditor(id) {
+  const { data: s, error } = await db.from('sops').select('*').eq('id', id).single();
+  if (error || !s) { showToast('Could not load SOP.'); return; }
+  currentEditorId = id;
+  document.getElementById('dashboard-screen').style.display = 'none';
+  document.getElementById('editor-screen').style.display = 'flex';
+  document.getElementById('ed-title').value    = s.title || '';
+  document.getElementById('ed-dept').value     = s.dept  || '';
+  document.getElementById('ed-status').value   = s.status || 'Draft';
+  document.getElementById('ed-priority').value = s.priority || 'Medium';
+  document.getElementById('doc-ed').innerHTML  = s.body || '';
+  document.getElementById('as-txt').textContent = 'All changes saved';
+  document.getElementById('last-saved').textContent = 'Last saved: ' + timeAgo(s.updated_at);
+  populateOwnerSel();
+  document.getElementById('ed-owner').value = s.owner || '';
+  updateWC();
+  document.getElementById('ai-content').innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:24px 12px;line-height:1.7;">Click <strong style="color:var(--text);">Check Writing</strong> to scan for improvements.</div>';
+  document.getElementById('ai-pa').style.display = 'none';
+  switchAiTab('grammar', document.getElementById('tab-gram'));
+}
+
+function backToDashboard() {
+  saveDoc(true);
+  document.getElementById('editor-screen').style.display = 'none';
+  document.getElementById('dashboard-screen').style.display = 'flex';
+  currentEditorId = null;
+}
+
+async function saveDoc(silent) {
+  if (!currentEditorId) return;
+  const name = currentProfile?.username || currentUser.email;
+  const updates = {
+    title: document.getElementById('ed-title').value || 'Untitled',
+    dept: document.getElementById('ed-dept').value,
+    owner: document.getElementById('ed-owner').value,
+    status: document.getElementById('ed-status').value,
+    priority: document.getElementById('ed-priority').value,
+    body: document.getElementById('doc-ed').innerHTML,
+    updated_by: currentUser.id,
+    updated_by_name: name,
+    updated_at: new Date().toISOString()
+  };
+  const { error } = await db.from('sops').update(updates).eq('id', currentEditorId);
+  if (error) { showToast('Save error: ' + error.message); return; }
+  await logActivity(name + ' edited "' + updates.title + '"', updates.title);
+  document.getElementById('as-txt').textContent = 'Saved';
+  document.getElementById('last-saved').textContent = 'Last saved: just now';
+  if (!silent) showToast('Saved.');
+  setTimeout(() => { document.getElementById('as-txt').textContent = 'All changes saved'; }, 2000);
+}
+
+function onDocInput() {
+  updateWC();
+  document.getElementById('as-txt').textContent = 'Unsaved changes...';
+  clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(() => saveDoc(true), 3000);
+}
+
+function updateWC() {
+  const t = document.getElementById('doc-ed').innerText || '';
+  document.getElementById('wc').textContent = t.trim() ? t.trim().split(/\s+/).length : 0;
+  document.getElementById('cc').textContent = t.length;
+}
+
+function fmt(cmd) { document.execCommand(cmd, false, null); document.getElementById('doc-ed').focus(); }
+function formatBlock(tag) { if (!tag) return; document.execCommand('formatBlock', false, tag); document.getElementById('doc-ed').focus(); }
+function insTable()   { document.execCommand('insertHTML', false, '<table><tr><th>Column 1</th><th>Column 2</th><th>Column 3</th></tr><tr><td></td><td></td><td></td></tr><tr><td></td><td></td><td></td></tr></table><p></p>'); }
+function insDivider() { document.execCommand('insertHTML', false, '<hr/><p></p>'); }
+function insCheck()   { document.execCommand('insertHTML', false, '<ul><li>&#9744; Step one</li><li>&#9744; Step two</li><li>&#9744; Step three</li></ul><p></p>'); }
+
+function populateOwnerSel() {
+  const sel = document.getElementById('ed-owner');
+  const cur = sel.value;
+  const names = allSOPs.map(s => s.owner).filter(Boolean);
+  const unique = [...new Set(['Maria','James','Nicole','Chris', ...names])];
+  sel.innerHTML = '<option value="">Owner</option>' + unique.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('');
+  if (cur) sel.value = cur;
+}
+
+// ═══════════════════════════════════════════════
+// AI ASSISTANT
+// ═══════════════════════════════════════════════
+function switchAiTab(tab, btn) {
+  document.querySelectorAll('.ai-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('ai-pa').style.display = tab === 'ask' ? 'block' : 'none';
+  if (tab === 'suggest') runSuggestions();
+}
+
+function showAiTab(tab) {
+  const map = { grammar: 'tab-gram', suggest: 'tab-sug', ask: 'tab-ask' };
+  const btn = document.getElementById(map[tab]);
+  if (btn) switchAiTab(tab, btn);
+}
+
+async function callClaude(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': CLAUDE_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
+    body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: prompt }] })
+  });
+  const d = await res.json();
+  if (d.error) throw new Error(d.error.message);
+  return d.content?.[0]?.text || '';
+}
+
+async function runGrammar() {
+  const text = document.getElementById('doc-ed').innerText || '';
+  if (text.trim().length < 10) { showToast('Write something first.'); return; }
+  switchAiTab('grammar', document.getElementById('tab-gram'));
+  const content = document.getElementById('ai-content');
+  content.innerHTML = '<div class="ai-load"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Checking writing...</span></div>';
+  const parts = [
+    'You are a grammar and writing assistant for business SOPs.',
+    'Analyze this text and return ONLY a JSON array (no markdown, no extra text) with up to 6 items.',
+    'Each item must have: type (error/warn/good), icon (emoji), label (short), text (1-2 sentence feedback), fix (suggested fix or empty string).',
+    'SOP text:', '---', text.slice(0, 1500), '---', 'Return only valid JSON array, nothing else.'
+  ];
+  try {
+    const raw = await callClaude(parts.join('\n'));
+    const items = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    content.innerHTML = items.map(item => `
+      <div class="gram-item ${item.type}">
+        <div class="gram-icon">${item.icon}</div>
+        <div class="gram-txt">
+          <div style="font-weight:600;margin-bottom:3px;color:var(--text);">${esc(item.label)}</div>
+          <div>${esc(item.text)}</div>
+          ${item.fix ? `<div style="margin-top:4px;color:var(--green);font-size:11px;">Suggestion: ${esc(item.fix)}</div>` : ''}
+        </div>
+      </div>`).join('');
+  } catch(e) {
+    content.innerHTML = `<div class="gram-item warn"><div class="gram-icon">&#9888;</div><div class="gram-txt"><div style="font-weight:600;color:var(--text);">Quick writing tips</div><div style="margin-top:4px;">&#8226; Use active voice<br>&#8226; Keep sentences under 20 words<br>&#8226; Number your steps clearly<br>&#8226; Define any acronyms<br><br><em style="color:var(--text3);">AI error: ${esc(e.message)}</em></div></div></div>`;
+  }
+}
+
+async function runSuggestions() {
+  const text  = document.getElementById('doc-ed').innerText || '';
+  const title = document.getElementById('ed-title').value || '';
+  const content = document.getElementById('ai-content');
+  if (text.trim().length < 10) { content.innerHTML = '<div style="font-size:12px;color:var(--text3);text-align:center;padding:20px;">Write some content first.</div>'; return; }
+  content.innerHTML = '<div class="ai-load"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Generating...</span></div>';
+  const prompt = 'You are an SOP expert. Review this SOP and return ONLY a JSON array (no markdown) of 3 suggestions, each with: label (5 words max), text (2-3 sentences), snippet (example text to add, or empty string). Title: ' + title + '. Content: ' + text.slice(0, 1000) + '. Return only valid JSON array.';
+  try {
+    const raw   = await callClaude(prompt);
+    const items = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    content.innerHTML = items.map(item => `
+      <div class="ai-sug">
+        <div class="ai-sug-lbl">${esc(item.label)}</div>
+        <div class="ai-sug-txt">${esc(item.text)}</div>
+        ${item.snippet ? `<div style="font-size:11px;font-style:italic;color:var(--text3);margin-bottom:8px;">"${esc(item.snippet)}"</div><button class="ai-apply" onclick="insertSnippet('${item.snippet.replace(/'/g,"\'").replace(/\n/g,' ')}')">Insert</button>` : ''}
+      </div>`).join('');
+  } catch(e) { content.innerHTML = '<div style="font-size:12px;color:var(--text3);padding:10px;">Could not load suggestions.</div>'; }
+}
+
+function insertSnippet(text) { document.getElementById('doc-ed').focus(); document.execCommand('insertHTML', false, '<p>' + text + '</p>'); showToast('Text inserted.'); }
+
+async function sendAiPrompt() {
+  const prompt  = (document.getElementById('ai-ta').value || '').trim();
+  if (!prompt) return;
+  const docText = document.getElementById('doc-ed').innerText || '';
+  const content = document.getElementById('ai-content');
+  content.innerHTML = '<div class="ai-load"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Thinking...</span></div>';
+  const full = 'You are an expert SOP writing assistant. Current SOP content:  + docText.slice(0, 1200) +  User asks: "' + prompt + '" Give a helpful, professional response in 2-4 sentences.';
+  try {
+    const reply = await callClaude(full);
+    content.innerHTML = '<div class="ai-resp"><div class="ai-resp-lbl">AI Response</div>' + esc(reply) + '</div>' + content.innerHTML;
+    document.getElementById('ai-ta').value = '';
+  } catch(e) { content.innerHTML = '<div class="ai-resp">Could not connect. Check your internet connection.</div>'; }
+}
+
+// ═══════════════════════════════════════════════
+// TEMPLATES
+// ═══════════════════════════════════════════════
+const TEMPLATES = [
+  { icon:'&#128075;', name:'Client Onboarding', dept:'Operations', desc:'Step-by-step new client onboarding', body:'<h1>Client Onboarding SOP</h1><h2>Purpose</h2><p>This SOP ensures every new client receives a consistent, professional onboarding experience.</p><h2>Steps</h2><ol><li><strong>Send welcome email</strong> within 24 hours of signing</li><li><strong>Schedule kickoff call</strong> via Calendly</li><li><strong>Set up client folder</strong> in Google Drive</li><li><strong>Add to project management tool</strong></li><li><strong>Send onboarding questionnaire</strong></li><li><strong>Conduct kickoff call</strong></li><li><strong>Send follow-up summary</strong> within 48 hours</li></ol><h2>Notes</h2><blockquote>Always CC the client success manager on all onboarding emails.</blockquote>'},
+  { icon:'&#128241;', name:'Social Media Workflow', dept:'Marketing', desc:'Monthly content creation process', body:'<h1>Social Media Workflow SOP</h1><h2>Purpose</h2><p>Ensure consistent, high-quality social media content is published on schedule every month.</p><h2>Monthly Steps</h2><ol><li><strong>Week 1:</strong> Brainstorm content themes</li><li><strong>Week 2:</strong> Design and write captions</li><li><strong>Week 2:</strong> Get approval from marketing lead</li><li><strong>Week 3-4:</strong> Schedule and publish</li><li><strong>End of month:</strong> Review analytics</li></ol><h2>Notes</h2><blockquote>All posts must be reviewed 48 hours before publishing.</blockquote>'},
+  { icon:'&#128200;', name:'Lead Qualification', dept:'Sales', desc:'Qualify and score incoming leads', body:'<h1>Lead Qualification SOP</h1><h2>BANT Criteria</h2><ul><li><strong>Budget:</strong> Does the prospect have budget?</li><li><strong>Authority:</strong> Are we talking to the decision maker?</li><li><strong>Need:</strong> Do they have a problem we solve?</li><li><strong>Timeline:</strong> Ready within 90 days?</li></ul><h2>Steps</h2><ol><li>Receive lead from CRM</li><li>Run BANT evaluation (score 1-4)</li><li>Score 3+: Schedule discovery call</li><li>Score below 3: Add to nurture sequence</li><li>Log notes in CRM</li></ol><blockquote>Qualified leads must be contacted within 24 hours.</blockquote>'},
+  { icon:'&#128101;', name:'Employee Onboarding', dept:'HR', desc:'New hire first week checklist', body:'<h1>Employee Onboarding SOP</h1><h2>Before Start Date</h2><ul><li>Send welcome email</li><li>Set up accounts and workstation</li><li>Prepare onboarding packet</li></ul><h2>Day 1</h2><ol><li>Office tour</li><li>Team introductions</li><li>IT setup walkthrough</li></ol><h2>Week 1</h2><ol><li>Shadow team members</li><li>Complete compliance training</li><li>Set 30-60-90 day goals</li></ol><blockquote>Assign a buddy for the first 30 days.</blockquote>'},
+  { icon:'&#128176;', name:'Payroll Processing', dept:'Finance', desc:'End-of-month payroll steps', body:'<h1>Payroll Processing SOP</h1><h2>Monthly Checklist</h2><ol><li><strong>25th:</strong> Collect timesheets</li><li><strong>26th:</strong> Verify hours</li><li><strong>27th:</strong> Calculate pay and deductions</li><li><strong>28th:</strong> Submit via payroll system</li><li><strong>Last day:</strong> Confirm transfers processed</li></ol><blockquote>Double-check new hires before submission.</blockquote>'},
+  { icon:'&#128260;', name:'Incident Response', dept:'Operations', desc:'Handle operational issues fast', body:'<h1>Incident Response SOP</h1><h2>Severity Levels</h2><ul><li><strong>P1:</strong> Critical, immediate action</li><li><strong>P2:</strong> High, respond within 2 hours</li><li><strong>P3:</strong> Medium, respond within 24 hours</li></ul><h2>Steps</h2><ol><li>Identify and classify incident</li><li>Notify team leads</li><li>Assign incident owner</li><li>Investigate and document</li><li>Communicate to clients</li><li>Implement fix and verify</li><li>Post-incident review</li></ol><blockquote>P1 incidents must be escalated within 15 minutes.</blockquote>'},
+];
+
+function openTemplateModal() {
+  document.getElementById('tpl-grid').innerHTML = TEMPLATES.map((t, i) => `
+    <button class="tpl" onclick="useTemplate(${i})">
+      <div class="tpl-icon">${t.icon}</div>
+      <div class="tpl-name">${esc(t.name)}</div>
+      <div class="tpl-desc">${esc(t.desc)}</div>
+    </button>`).join('');
+  document.getElementById('tpl-modal').classList.add('open');
+}
+
+async function useTemplate(i) {
+  const t = TEMPLATES[i];
+  closeMo('tpl-modal');
+  const name = currentProfile?.username || currentUser.email;
+  const { data, error } = await db.from('sops').insert({
+    title: t.name, dept: t.dept, owner: name, status: 'Draft', priority: 'Medium',
+    tags: [], body: t.body, created_by: currentUser.id, updated_by: currentUser.id,
+    updated_by_name: name, updated_at: new Date().toISOString()
+  }).select().single();
+  if (error) { showToast('Error: ' + error.message); return; }
+  await logActivity(name + ' created from template: "' + t.name + '"', t.name);
+  openEditor(data.id);
+}
+
+// ═══════════════════════════════════════════════
+// AUDIT LOG
+// ═══════════════════════════════════════════════
+async function openAuditLog() {
+  document.getElementById('audit-modal').classList.add('open');
+  const { data } = await db.from('activity_log').select('*').order('created_at', { ascending: false }).limit(50);
+  const el = document.getElementById('audit-list');
+  if (!data || !data.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:10px;">No activity recorded yet.</div>'; return; }
+  el.innerHTML = data.map(a => `
+    <div class="audit-item">
+      <div class="audit-action">${esc(a.action)}</div>
+      <div class="audit-meta">
+        <span class="audit-user">${esc(a.username || 'Unknown')}</span>
+        <span class="audit-time">${timeAgo(a.created_at)}</span>
+      </div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// TEAM MANAGER
+// ═══════════════════════════════════════════════
+async function openTeamManager() {
+  document.getElementById('team-modal').classList.add('open');
+  const { data } = await db.from('profiles').select('*').order('created_at', { ascending: true });
+  const el = document.getElementById('team-list');
+  if (!data || !data.length) { el.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:10px;">No team members yet.</div>'; return; }
+  el.innerHTML = data.map(p => `
+    <div class="team-item">
+      <div class="team-avatar">${(p.username||'?').charAt(0).toUpperCase()}</div>
+      <div class="team-info">
+        <div class="team-name">${esc(p.username||'Unknown')}</div>
+        <div class="team-email">Joined ${timeAgo(p.created_at)}</div>
+      </div>
+      <span class="team-role ${p.role === 'admin' ? 'role-admin' : 'role-member'}">${p.role||'member'}</span>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════
+// EXPORT
+// ═══════════════════════════════════════════════
+function exportSOPs() {
+  const blob = new Blob([JSON.stringify({ sops: allSOPs, exported: new Date().toISOString() }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sop-space-backup-' + Date.now() + '.json';
+  a.click();
+  showToast('Backup exported.');
+}
+
+// ═══════════════════════════════════════════════
+// MODAL / TOAST / KEYBOARD
+// ═══════════════════════════════════════════════
+function closeMo(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') ['sop-modal','tpl-modal','audit-modal','team-modal'].forEach(id => closeMo(id));
+  if ((e.ctrlKey || e.metaKey) && e.key === 's' && currentEditorId) { e.preventDefault(); saveDoc(); }
+});
+
+document.querySelectorAll('.mo').forEach(o => o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); }));
+
+// ═══════════════════════════════════════════════
+// FORGOT PASSWORD
+// ═══════════════════════════════════════════════
+function showForgotForm() {
+  document.getElementById('signin-form').style.display = 'none';
+  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('auth-msg').className = 'auth-msg';
+  setTimeout(() => document.getElementById('fp-email').focus(), 100);
+}
+
+function hideForgotForm() {
+  document.getElementById('forgot-form').style.display = 'none';
+  document.getElementById('signin-form').style.display = 'block';
+  document.getElementById('auth-msg').className = 'auth-msg';
+}
+
+async function doForgotPassword() {
+  const email = document.getElementById('fp-email').value.trim();
+  const btn   = document.getElementById('forgot-btn');
+  if (!email) { showAuthMsg('Please enter your email address.', 'error'); return; }
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const { error } = await db.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+  btn.disabled = false; btn.textContent = 'Send Reset Link';
+  if (error) { showAuthMsg(error.message, 'error'); return; }
+  showAuthMsg('Reset link sent! Check your email inbox.', 'success');
+  document.getElementById('fp-email').value = '';
+}
+
+// Handle password reset redirect (when user clicks link in email)
+async function checkPasswordReset() {
+  const hash = window.location.hash;
+  if (hash.includes('type=recovery')) {
+    const params = new URLSearchParams(hash.replace('#', '?'));
+    const accessToken = params.get('access_token');
+    if (accessToken) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('auth-screen').style.display = 'flex';
+      showResetPasswordForm(accessToken);
+    }
+  }
+}
+
+function showResetPasswordForm(token) {
+  const card = document.querySelector('.auth-card');
+  card.innerHTML = `
+    <div class="auth-logo">SOP<span> Space</span></div>
+    <div class="auth-sub">Set your new password</div>
+    <input class="af" type="password" id="rp-pass" placeholder="New password (min 6 characters)" autocomplete="new-password"/>
+    <input class="af" type="password" id="rp-confirm" placeholder="Confirm new password" autocomplete="new-password"/>
+    <button class="auth-btn" onclick="doResetPassword('${token}')">Update Password</button>
+    <div class="auth-msg" id="auth-msg"></div>
+  `;
+}
+
+async function doResetPassword(token) {
+  const pass    = document.getElementById('rp-pass').value;
+  const confirm = document.getElementById('rp-confirm').value;
+  if (pass.length < 6)    { showAuthMsg('Password must be at least 6 characters.', 'error'); return; }
+  if (pass !== confirm)   { showAuthMsg('Passwords do not match.', 'error'); return; }
+  const { error } = await db.auth.updateUser({ password: pass });
+  if (error) { showAuthMsg(error.message, 'error'); return; }
+  showAuthMsg('Password updated! Redirecting to sign in...', 'success');
+  setTimeout(() => { window.location.hash = ''; window.location.reload(); }, 2000);
+}
+
+// ═══════════════════════════════════════════════
+// START
+// ═══════════════════════════════════════════════
+checkPasswordReset();
+init();
+</script>
+</body>
+</html>
